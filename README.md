@@ -105,19 +105,31 @@ System tests validate the entire application from the user's perspective. They s
 - UI, backend, and database behave consistently.
 - The system remains stable under typical usage patterns.
 
+
 ## AI-Use Statement
 
+**Tools Used:**
+
+- **Figma Make:** Used to generate an interactive prototype of the Video Game Backlog Tracker, including its interface, navigation, and backlog management features.
+- **ChatGPT:** Used to help organize and draft the README documentation, including architecture descriptions, prototype information, and the test plan.
+
+**Accepted Outputs:**
+
+I accepted the Figma Make prototype as a starting point because it demonstrates the application's core functionality, including navigating between screens, adding games, and updating backlog statuses. I also used ChatGPT's assistance to organize the README into the required sections.
+
+**Edited Outputs:**
+
+I reviewed and adjusted the README documentation to reflect the project's actual goals, personas, context diagram, and planned architecture. I also clarified that the Figma Make application is a prototype rather than the final implementation.
+
+**Rejected Outputs / AI Limitations:**
+
+The AI-assisted documentation initially described some planned backend functionality without clearly distinguishing it from the current prototype. I corrected this to avoid suggesting that features such as database synchronization and external API integrations were already implemented.
+
+Figma Make also does not replace the planned final implementation, which will require further development and testing.
 **Tools used:**
 - **Figma Make:** Assisted with generating the interactive application prototype and its UI.
-- **ChatGPT:** Assisted with organizing and drafting the README sections, including the architecture explanation, prototype descriptions, and test plan.
+- **ChatGPT:** Assisted with organizing and drafting the README sections, including the architecture explanation, prototype descriptions, and test plan making things more simplified .
 
-**Accepted outputs:** [Specify which Figma Make-generated screens, interactions, or ChatGPT suggestions you kept and why.]
-
-**Edited outputs:** [Specify changes you made to generated content and why.]
-
-**Rejected outputs / what AI missed:** [Describe incorrect or missing suggestions you rejected or corrected. If none, say so accurately and describe any limitations.]
-
-The AI-assisted material should be checked against the Product Goal and the actual prototype before submission.
 
 ## UI/UX Video Demonstration
 
