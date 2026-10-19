@@ -33,7 +33,7 @@ The prototype demonstrates navigating between screens, adding games, and changin
 
 The full personas are included in the separate project design document, as permitted for this assignment.
 
-**[Personas and context diagram document — https://docs.google.com/document/d/1EoyXr_Gk-xtFo-HklefOIWqT0FEQI0zyss87eHZOoak/edit?usp=sharing**
+**[Personas and context diagram document —](https://docs.google.com/document/d/1EoyXr_Gk-xtFo-HklefOIWqT0FEQI0zyss87eHZOoak/edit?usp=sharing)**
 
 ### Context diagram
 
