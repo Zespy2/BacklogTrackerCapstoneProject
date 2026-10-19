@@ -133,6 +133,6 @@ Figma Make also does not replace the planned final implementation, which will re
 
 ## UI/UX Video Demonstration
 
-**[Watch the unlisted YouTube walkthrough — ADD LINK HERE](PASTE_YOUTUBE_LINK_HERE)**
+**[Watch the unlisted YouTube walkthrough — ADD LINK HERE](https://youtu.be/OmXu7VBf6cM)**
 
 The video (under two minutes) demonstrates the prototype's main screens and the primary player's workflow.
