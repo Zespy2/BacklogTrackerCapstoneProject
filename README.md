@@ -24,7 +24,7 @@ These are architectural plans, **not a claim that the Figma Make prototype alrea
 
 **[Open the Video Game Backlog App in Figma Make](https://www.figma.com/make/FBdUjQLYRkBhU6BTZ71FGc/Video-Game-Backlog-App?t=hm7UlBsNBLBhGXnA-1)**
 
-The prototype demonstrates navigating between screens, adding games, and changing backlog statuses. Its design focuses on helping players view and organize their collections with minimal friction.
+The prototype demonstrates navigating between screens, adding games, and changing backlog statuses. Its design focuses on helping players view and organize their collections with minimal friction, however this is just a mock prototype used with figma make the final project handmade and fully tweeked will be added along as time progresses.
 
 ### Personas
 
