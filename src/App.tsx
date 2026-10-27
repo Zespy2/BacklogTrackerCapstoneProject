@@ -90,6 +90,7 @@ function PublicSite({ page, onNavigate }: { page: "main" | "about"; onNavigate: 
   </div>;
 }
 
+// Sign-in page, leads to create account and password reset. 
 function Auth({ onEnter, onBack }: { onEnter: (user: User) => void; onBack: () => void }) {
   const [mode, setMode] = useState<"signin" | "signup" | "recover">("signin");
   // What the user has typed into each box
@@ -166,7 +167,7 @@ const featureMeta: Record<string, { eyebrow: string; title: string; copy: string
   Recovery: { eyebrow: "ACCOUNT RECOVERY", title: "Recover your account", copy: "We'll send a secure recovery link to your verified email." },
   Search: { eyebrow: "GAME DATABASE", title: "Search games", copy: "Search by title, studio, genre, platform, or release year." },
   Journal: { eyebrow: "ACTIVITY TRACKER", title: "Your gaming journal", copy: "A private timeline of every session, milestone, and memory." },
-  Sharing: { eyebrow: "PLAY TOGETHER", title: "Share your collection", copy: "Send a list, review, or profile to friends." },
+
   Media: { eyebrow: "WATCH · VISIT · EXPLORE", title: "Game media hub", copy: "Trailers, official links, screenshots, and artwork in one place." },
 };
 
@@ -248,7 +249,7 @@ export default function App() {
         <div className="brand"><span>ℑ</span>Inventory</div>
         <nav className="feature-nav">
           <p>LIBRARY</p>
-          {[["compass","Recommendations"],["plus","Add games"],["trash","Remove games"],["library","Move games"],["star","Reviews"],["search","Search"],["journal","Journal"],["share","Sharing"],["play","Media"],["settings","Settings"]].map(([icon, label]) =>
+          {[["compass","Recommendations"],["plus","Add games"],["trash","Remove games"],["library","Move games"],["star","Reviews"],["search","Search"],["journal","Journal"],["play","Media"],["settings","Settings"]].map(([icon, label]) =>
             <button key={label} className={currentView === label ? "active" : ""} onClick={() => setCurrentView(label)}><Icon name={icon} />{label}</button>)}
         </nav>
         <div className="side-bottom">
