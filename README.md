@@ -185,9 +185,12 @@ Examples of project development activity include:
 
 Pull Request #16 was merged after a teammate's approval. Pull Request #22 added pull-request-triggered testing and frontend build verification.
 
-**Kanban board:** [INSERT TEAM KANBAN BOARD URL]
+**Kanban board:** https://github.com/users/Zespy2/projects/1
 
-**Selected Epics and Completed User Stories:** [INSERT FINAL EPICS AND LINKS TO COMPLETED STORY PULL REQUESTS]
+**Selected Epics and Completed User Stories:** 
+Tech Story:
+https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/25
+
 
 ## Local Development Setup
 
