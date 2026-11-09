@@ -105,13 +105,196 @@ System tests validate the entire application from the user's perspective. They s
 - UI, backend, and database behave consistently.
 - The system remains stable under typical usage patterns.
 
+  ## Sprint 2: Implementation and CI/CD Development
+
+### Current Project Implementation
+
+The Video Game Backlog Tracker has progressed from its initial Figma Make prototype into a React and Django application.
+
+The frontend uses React, TypeScript, and Vite to provide the user interface. The backend uses Python and Django to handle account functionality, authentication, and database operations.
+
+The project currently includes automated tests for account registration, login, logout, password validation, duplicate email prevention, and CSRF protection.
+
+Some features, including persistent game library management, external game API integration, and recommendation functionality, remain under development. Sample game data is still used in parts of the interface.
+
+## CI/CD Pipeline
+
+Our team uses GitHub Actions to automate testing and prepare the application for deployment.
+
+The workflow file is located at:
+
+`.github/workflows/main.yml`
+
+The pipeline runs automatically when code is pushed to `main` or when a pull request targets `main`.
+
+### Pipeline Stages
+
+| Stage | Description |
+|---|---|
+| Setup | Checks out the repository and configures Python. |
+| Dependencies | Installs the project's Python dependencies. |
+| Test | Executes Django automated tests and builds the React frontend using pnpm and Vite. |
+| Deploy | Depends on successful tests. Currently contains a placeholder deployment command that must be replaced with an actual deployment process. |
+
+The Test stage checks that the backend tests pass and that the frontend can successfully build.
+
+**Successful workflow example:**
+
+[GitHub Actions Run #11](https://github.com/Zespy2/BacklogTrackerCapstoneProject/actions/runs/42335419909)
+
+This workflow completed successfully, including Setup, Dependencies, Test, and the placeholder Deploy stage. It does not establish that the application has been deployed to a live hosting service.
+
+## Branch Protection
+
+The team has configured branch protection for `main` to support a pull-request-based development process.
+
+The intended repository rules require:
+
+- Changes to be submitted through pull requests rather than direct pushes.
+- At least one approval from another teammate before merging.
+- A successful Test status check before merging.
+
+These requirements help prevent unreviewed or failing changes from being merged into the main application.
+
+## Feature Development and Pull Requests
+
+The team organizes development using GitHub issues and a Kanban board.
+
+The project backlog includes user stories for account management, game list management, recommendations, notes, and other application features.
+
+For the current assignment, the team is organizing its selected user stories into two epics.
+
+### Development Process
+
+1. Select an assigned user story from the Kanban board.
+2. Review its requirements and acceptance criteria.
+3. Create a feature branch from the latest `main`.
+4. Implement the required functionality.
+5. Write at least one automated test covering the story's acceptance criteria.
+6. Push the feature branch and create a pull request targeting `main`.
+7. Link the pull request to its corresponding GitHub issue.
+8. Receive approval from another teammate and confirm the required CI tests pass.
+9. Merge the pull request and update the Kanban issue.
+
+Examples of project development activity include:
+
+- [Account Creation User Story — Issue #2](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/2)
+- [About Page — Issue #8](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/8)
+- [CI/CD Workflow Pull Request #16](https://github.com/Zespy2/BacklogTrackerCapstoneProject/pull/16)
+- [Frontend and Workflow Updates — Pull Request #22](https://github.com/Zespy2/BacklogTrackerCapstoneProject/pull/22)
+
+Pull Request #16 was merged after a teammate's approval. Pull Request #22 added pull-request-triggered testing and frontend build verification.
+
+**Kanban board:** https://github.com/users/Zespy2/projects/1
+
+**Selected Epics and Completed User Stories:** 
+Tech Story:
+https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/25
+
+
+## Local Development Setup
+
+The project requires Python, Node.js, and pnpm.
+
+### Backend Setup
+
+From the repository root:
+
+```bash
+python -m venv .venv
+```
+
+Activate the virtual environment, then install the backend dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the Django migrations and start the backend:
+
+```bash
+cd backend
+python manage.py migrate
+python manage.py runserver
+```
+
+The Django backend runs locally at `http://127.0.0.1:8000`.
+
+### Frontend Setup
+
+Open a second terminal at the repository root.
+
+Install dependencies and start the React development server:
+
+```bash
+pnpm install
+pnpm dev
+```
+
+The frontend is configured to run locally on port 8443.
+
+Open `http://localhost:8443` to access the application.
+
+### Running Tests
+
+To run backend tests from the repository root:
+
+```bash
+cd backend
+python manage.py test -v 2
+```
+
+To verify the frontend production build, return to the repository root and run:
+
+```bash
+pnpm build
+```
+
+The React frontend also uses a development proxy to forward `/api` requests to the local Django backend.
+
+## Deployment and GitHub Secrets
+
+The team uses GitHub Actions as the CI/CD automation platform.
+
+The existing Deploy job depends on the successful Test job but currently performs a placeholder action rather than publishing the application.
+
+A live deployment requires configuring a hosting platform and verifying that the application is accessible after deployment.
+
+API keys, passwords, tokens, and deployment credentials must be stored securely using GitHub Secrets or the appropriate hosting provider's environment-variable settings.
+
+Production credentials must not be committed to the repository or written directly in the workflow.
+
+**Deployment status:** Real deployment configuration pending.
+
+Website Development should go live within the next week Url will appear in this segement
+
+## New Teammate Sanity Check
+
+A new developer should be able to clone the repository, install the required dependencies, run the application locally, create a feature branch, run tests, and open a pull request for teammate review.
+
+The repository contains local setup documentation and an automated testing workflow to support this process.
+
+Full end-to-end onboarding and deployment verification remain to be completed after a live deployment environment is configured.
+
 
 ## AI-Use Statement
 
-**Tools Used:**
+Our team used AI tools during the development of the Video Game Backlog Tracker, including Figma Make, ChatGPT, and Claude.
 
-- **Figma Make:** Used to generate an interactive prototype of the Video Game Backlog Tracker, including its interface, navigation, and backlog management features.
-- **ChatGPT:** Used to help organize and draft the README documentation, including architecture descriptions, prototype information, and the test plan.
+Figma Make was used during the initial design phase to generate an interactive prototype of the application's user interface. The generated code provided a starting point for implementing the React frontend.
+
+AI tools were also used to assist with understanding code, identifying errors, configuring GitHub Actions, and organizing technical documentation.
+
+During CI/CD development, the team encountered problems integrating the imported frontend code and configuring the testing workflow. The frontend code had been commented out in `App.tsx`, and parts of the Figma-generated Vite configuration contributed to build difficulties.
+
+A subsequent pull request addressed these problems by re-enabling the application code, adjusting the Vite configuration, adding frontend dependency installation and a build step, and configuring GitHub Actions to run on pull requests targeting `main`.
+
+The team verified these changes through GitHub Actions, which successfully executed the backend tests and frontend build.
+
+One remaining limitation is that the Deploy stage currently prints a deployment message rather than publishing the application. A green pipeline therefore does not yet prove successful live deployment.
+
+AI-generated suggestions and code require human review. The team remains responsible for understanding the implementation, validating functionality, testing changes, and ensuring that the final application meets the project requirements.
+
 
 **Accepted Outputs:**
 
