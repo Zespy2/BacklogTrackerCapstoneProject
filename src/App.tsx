@@ -1,18 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getCurrentUser, signIn, signOut, signUp, type User } from "./api";
-
-type Game = {
-  id: number;
-  title: string;
-  genre: string;
-  platform: string;
-  progress: number;
-  hours: number;
-  status: string;
-  image: string;
-  color: string;
-  score?: number;
-};
+import GameBoard from "./GameBoard";
+import { gameStatuses, type Game, type GameStatus } from "./gameTypes";
 
 const images = {
   neon: "https://images.unsplash.com/photo-1672872476232-da16b45c9001?auto=format&fit=crop&w=1200&q=85",
@@ -26,6 +15,11 @@ const initialGames: Game[] = [
   { id: 2, title: "Midnight Circuit", genre: "Racing", platform: "PS5", progress: 34, hours: 14, status: "Playing", image: images.night, color: "#e84f8a", score: 4.6 },
   { id: 3, title: "The Last Signal", genre: "Adventure", platform: "PC", progress: 12, hours: 4, status: "Backlog", image: images.city, color: "#489bb8", score: 4.7 },
   { id: 4, title: "Citadel Zero", genre: "Strategy", platform: "Xbox", progress: 0, hours: 0, status: "Backlog", image: images.tower, color: "#e19645", score: 4.5 },
+];
+const catalogGames: Game[] = [
+  { id: 12, title: "Neon Drifter", genre: "Racing", platform: "PS5", progress: 0, hours: 0, status: "Backlog", image: images.night, color: "#e84f8a", score: 4.4 },
+  { id: 13, title: "Hollow Vale", genre: "Adventure", platform: "PC", progress: 0, hours: 0, status: "Backlog", image: images.city, color: "#489bb8", score: 4.6 },
+  { id: 14, title: "Clockwork Harbor", genre: "Strategy", platform: "Xbox", progress: 0, hours: 0, status: "Backlog", image: images.tower, color: "#e19645", score: 4.3 },
 ];
 
 const Icon = ({ name, size = 18 }: { name: string; size?: number }) => {
@@ -171,7 +165,7 @@ const featureMeta: Record<string, { eyebrow: string; title: string; copy: string
   Media: { eyebrow: "WATCH · VISIT · EXPLORE", title: "Game media hub", copy: "Trailers, official links, screenshots, and artwork in one place." },
 };
 
-function FeaturePage({ view, games, onAdd, onRemove, onMove, notify }: { view: string; games: Game[]; onAdd: (game: Game) => void; onRemove: (id: number) => void; onMove: (id: number, status: string) => void; notify: (message: string) => void }) {
+function FeaturePage({ view, games, availableGames, onAdd, onRemove, onMove, notify }: { view: string; games: Game[]; availableGames: Game[]; onAdd: (game: Game, status?: GameStatus) => void; onRemove: (id: number) => void; onMove: (id: number, status: GameStatus) => void; notify: (message: string) => void }) {
   const meta = featureMeta[view];
   const accountView = ["Sign up", "Sign in", "Recovery"].includes(view);
   return <div className="feature-page">
@@ -189,11 +183,11 @@ function FeaturePage({ view, games, onAdd, onRemove, onMove, notify }: { view: s
 
     {view === "Search" && <><div className="big-search"><Icon name="search" size={22} /><input autoFocus placeholder="Try “open-world RPG” or “co-op on PC”" /><button className="primary">Search</button></div><div className="filter-row"><button className="active">All games</button><button>PC</button><button>PlayStation</button><button>Xbox</button><button>Nintendo</button></div><FeatureGames games={games} action="Details" notify={notify} /></>}
 
-    {view === "Add games" && <><div className="big-search"><Icon name="search" /><input placeholder="Search more than 250,000 games..." /></div><p className="collection-label">POPULAR THIS WEEK</p><FeatureGames games={games} action="Add" notify={notify} onAction={onAdd} /></>}
+    {view === "Add games" && <><div className="big-search"><Icon name="search" /><input placeholder="Search more than 250,000 games..." /></div><p className="collection-label">POPULAR THIS WEEK</p><FeatureGames games={availableGames} action="Add" notify={notify} onAction={game => onAdd(game)} /></>}
 
     {view === "Remove games" && <><div className="selection-bar"><span><b>{games.length}</b> games in your library</span><span>Select a game to remove it from your account</span></div><FeatureGames games={games} action="Remove" notify={notify} onRemove={onRemove} /></>}
 
-    {view === "Move games" && <section className="board">{["Playing", "Backlog", "Completed"].map(status => <div className="board-column" key={status}><div><h3>{status}</h3><span>{games.filter(g => g.status === status).length}</span></div>{games.filter(g => g.status === status).map(game => <article key={game.id}><img src={game.image} alt="" /><div><b>{game.title}</b><small>{game.platform} · {game.hours}h</small><select value={game.status} onChange={e => onMove(game.id, e.target.value)}>{["Playing", "Backlog", "Completed", "On hold"].map(s => <option key={s}>{s}</option>)}</select></div></article>)}</div>)}</section>}
+    {view === "Move games" && <GameBoard games={games} catalogGames={availableGames} onAdd={onAdd} onMove={onMove} />}
 
     {view === "Reviews" && <section className="reviews-layout"><div className="review-editor standalone-card"><p className="collection-label">WRITE A REVIEW</p><div className="review-game"><img src={games[0].image} alt="" /><div><b>{games[0].title}</b><span>32 hours played</span></div></div><div className="stars">{[1,2,3,4,5].map(x => <button key={x}><Icon name="star" /></button>)}</div><textarea placeholder="What did you think? Avoid spoilers if you can..." /><div><label><input type="checkbox" /> Contains spoilers</label><button className="primary" onClick={() => notify("Review published")}>Publish review</button></div></div><div className="review-list"><p className="collection-label">YOUR REVIEWS</p>{games.slice(0,3).map((g,i)=><article key={g.id}><img src={g.image} alt="" /><div><b>{g.title}</b><span>★ {4.5 + i * .1} · {i+2} months ago</span><p>{i === 0 ? "A brilliant world that rewards curiosity at every turn." : "I kept thinking about this one long after the credits."}</p></div></article>)}</div></section>}
 
@@ -206,7 +200,7 @@ function FeaturePage({ view, games, onAdd, onRemove, onMove, notify }: { view: s
 }
 // Would comment out line 202 if I could. Sharing feature is not a feature we want, but would rather not delete permanently.
 function FeatureGames({ games, action, notify, onAction, onRemove }: { games: Game[]; action: string; notify: (message: string) => void; onAction?: (game: Game) => void; onRemove?: (id: number) => void }) {
-  return <div className="catalog-grid">{games.map(game => <article key={game.id}><img src={game.image} alt="" /><div><span>{game.genre} · {game.platform}</span><h3>{game.title}</h3><p><Icon name="star" size={13} /> {game.score} <i /> {game.hours || "—"}h played</p><button className={action === "Remove" ? "remove-action" : "secondary"} onClick={() => { onAction?.(game); onRemove?.(game.id); notify(action === "Remove" ? `${game.title} removed` : action === "Add" ? `${game.title} added` : `Opening ${game.title}`); }}>{action === "Add" && <Icon name="plus" />}{action === "Remove" && <Icon name="trash" />}{action}</button></div></article>)}</div>;
+  return <div className="catalog-grid">{games.map(game => <article key={game.id}><img src={game.image} alt="" /><div><span>{game.genre} · {game.platform}</span><h3>{game.title}</h3><p><Icon name="star" size={13} /> {game.score} <i /> {game.hours || "—"}h played</p><button className={action === "Remove" ? "remove-action" : "secondary"} onClick={() => { if (action === "Add" && onAction) { onAction(game); return; } onRemove?.(game.id); notify(action === "Remove" ? `${game.title} removed` : `Opening ${game.title}`); }}>{action === "Add" && <Icon name="plus" />}{action === "Remove" && <Icon name="trash" />}{action}</button></div></article>)}</div>;
 }
 
 export default function App() {
@@ -224,8 +218,20 @@ export default function App() {
 
   const visibleGames = useMemo(() => games.filter(g => (activeList === "All games" || g.status === activeList) && g.title.toLowerCase().includes(query.toLowerCase())), [games, activeList, query]);
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(""), 2200); };
-  const addGame = (game: Game) => { if (!games.some(g => g.id === game.id)) setGames([...games, game]); setShowAdd(false); notify(`${game.title} added to your backlog`); };
-  const moveGame = (id: number, status: string) => { setGames(games.map(g => g.id === id ? { ...g, status, progress: status === "Completed" ? 100 : g.progress } : g)); notify(`Game moved to ${status}`); };
+  const addGame = (game: Game, status: GameStatus = "Backlog") => {
+    if (games.some(existingGame => existingGame.id === game.id)) {
+      notify(`${game.title} is already in your library`);
+    } else {
+      setGames(currentGames =>
+        currentGames.some(existingGame => existingGame.id === game.id)
+          ? currentGames
+          : [...currentGames, { ...game, status }],
+      );
+      notify(`${game.title} added to ${status.toLowerCase()}`);
+    }
+    setShowAdd(false);
+  };
+  const moveGame = (id: number, status: GameStatus) => { setGames(currentGames => currentGames.map(g => g.id === id ? { ...g, status, progress: status === "Completed" ? 100 : g.progress } : g)); notify(`Game moved to ${status}`); };
 
   // When the page first loads, ask Django whether this browser is already signed in
   useEffect(() => { getCurrentUser().then(u => { setUser(u); setCheckingSession(false); }); }, []);
@@ -271,7 +277,7 @@ export default function App() {
         </header>
 
         <div className="content">
-          {currentView !== "Recommendations" ? <FeaturePage view={currentView} games={games} onAdd={addGame} onRemove={id => setGames(games.filter(g => g.id !== id))} onMove={moveGame} notify={notify} /> : <>
+          {currentView !== "Recommendations" ? <FeaturePage view={currentView} games={games} availableGames={catalogGames.filter(game => !games.some(libraryGame => libraryGame.id === game.id))} onAdd={addGame} onRemove={id => setGames(games.filter(g => g.id !== id))} onMove={moveGame} notify={notify} /> : <>
           <section className="welcome">
             <div><p className="eyebrow purple">MONDAY, 14 OCTOBER</p><h1>Good evening, {displayName}.</h1><p>Your backlog isn't getting any smaller. Let's change that.</p></div>
             <div className="streak"><span>7</span><div><strong>day streak</strong><small>Keep it going</small></div></div>
@@ -302,7 +308,7 @@ export default function App() {
           <section className="game-grid">
             {visibleGames.map(game => <article className="game-card" key={game.id}>
               <div className="cover"><img src={game.image} alt="" /><span>{game.platform}</span><div className="card-menu">
-                <button><Icon name="more" /></button><div className="card-pop"><p>Move to</p>{["Playing", "Backlog", "Completed", "On hold"].map(s => <button onClick={() => moveGame(game.id, s)} key={s}>{s}</button>)}<button className="danger" onClick={() => { setGames(games.filter(g => g.id !== game.id)); notify("Game removed"); }}>Remove game</button></div>
+                <button><Icon name="more" /></button><div className="card-pop"><p>Move to</p>{gameStatuses.map(status => <button onClick={() => moveGame(game.id, status)} key={status}>{status}</button>)}<button className="danger" onClick={() => { setGames(games.filter(g => g.id !== game.id)); notify("Game removed"); }}>Remove game</button></div>
               </div></div>
               <div className="card-info"><div><small>{game.genre}</small><h3>{game.title}</h3></div><span className="rating"><Icon name="star" size={13} />{game.score}</span></div>
               <div className="progress-row"><div><i style={{ width: `${game.progress}%`, background: game.color }} /></div><span>{game.progress}%</span></div>
@@ -331,7 +337,7 @@ export default function App() {
       {showAdd && <div className="modal-backdrop" onMouseDown={() => setShowAdd(false)}>
         <div className="modal" onMouseDown={e => e.stopPropagation()}><button className="modal-close" onClick={() => setShowAdd(false)}><Icon name="x" /></button><p className="eyebrow purple">SEARCH THE CATALOG</p><h2>Add a game</h2><div className="modal-search"><Icon name="search" /><input autoFocus placeholder="Search by title, genre, or platform..." /></div>
           <p className="modal-label">TRENDING SEARCHES</p>
-          {[{ ...initialGames[2], id: 12 }, { ...initialGames[3], id: 13 }, { ...initialGames[1], id: 14, title: "Neon Drifter" }].map(g => <div className="search-result" key={g.id}><img src={g.image} alt="" /><div><strong>{g.title}</strong><span>{g.genre} · {g.platform}</span></div><button onClick={() => addGame(g)}><Icon name="plus" /></button></div>)}
+          {catalogGames.filter(game => !games.some(libraryGame => libraryGame.id === game.id)).map(g => <div className="search-result" key={g.id}><img src={g.image} alt="" /><div><strong>{g.title}</strong><span>{g.genre} · {g.platform}</span></div><button onClick={() => addGame(g)}><Icon name="plus" /></button></div>)}
         </div>
       </div>}
       {toast && <div className="toast"><Icon name="check" />{toast}</div>}
