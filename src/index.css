@@ -306,3 +306,5 @@ nav button b { color: #fff; background: #ff254f; box-shadow: 0 0 12px #ff254f55;
 .auth-message { clear: both; margin: 4px 0 10px; padding: 10px 12px; border-radius: 8px; font-size: 10px; line-height: 1.5; color: #9fe9f7; background: #06232b; border: 1px solid #134352; }
 .auth-error { color: #ff8da2; background: #2a0a12; border-color: #6b1a2c; }
 .auth-card .primary:disabled { opacity: .6; cursor: wait; }
+
+.delete-button:disabled { opacity: .45; cursor: not-allowed; } /* greys out delete button until it can be used */

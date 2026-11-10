@@ -124,3 +124,22 @@ def logout_view(request):
     """POST /api/logout/ - sign out."""
     logout(request)
     return JsonResponse({"ok": True})
+
+@require_POST
+def delete_account(request):
+    """POST /api/delete-account/ with {password} - permanently delete the signed-in account."""
+    if not request.user.is_authenticated:
+        return error("You need to be signed in to delete your account.", status=401)
+
+    data = read_json(request)
+    password = str(data.get("password", ""))
+
+    # Ask for the password again so nobody can delete an account from a
+    # computer that was just left signed in.
+    if not request.user.check_password(password):
+        return error("Incorrect password. Your account was not deleted.")
+
+    user = request.user
+    logout(request)
+    user.delete()  # removes the row from the accounts table
+    return JsonResponse({"ok": True})
