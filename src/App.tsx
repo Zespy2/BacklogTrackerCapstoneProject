@@ -189,7 +189,7 @@ function FeaturePage({ view, games, onAdd, onRemove, onMove, notify }: { view: s
 
     {view === "Search" && <><div className="big-search"><Icon name="search" size={22} /><input autoFocus placeholder="Try “open-world RPG” or “co-op on PC”" /><button className="primary">Search</button></div><div className="filter-row"><button className="active">All games</button><button>PC</button><button>PlayStation</button><button>Xbox</button><button>Nintendo</button></div><FeatureGames games={games} action="Details" notify={notify} /></>}
 
-    {view === "Add games" && <><div className="big-search"><Icon name="search" /><input placeholder="Search more than 250,000 games..." /></div><p className="collection-label">POPULAR THIS WEEK</p><FeatureGames games={games} action="Add" notify={notify} onAction={onAdd} /></>}
+    {view === "Add games" && <><div className="big-search"><Icon name="search" /><input placeholder="Search Games..." /></div><p className="collection-label">POPULAR THIS WEEK</p><FeatureGames games={games} action="Add" notify={notify} onAction={onAdd} /></>}
 
     {view === "Remove games" && <><div className="selection-bar"><span><b>{games.length}</b> games in your library</span><span>Select a game to remove it from your account</span></div><FeatureGames games={games} action="Remove" notify={notify} onRemove={onRemove} /></>}
 
