@@ -38,7 +38,15 @@ function StatefulGameBoard() {
       games={games}
       catalogGames={[catalogGame]}
       onAdd={(game, status) => setGames(current => [...current, { ...game, status }])}
-      onMove={() => {}}
+      onMove={(id, status) =>
+        setGames(current =>
+          current.map(game =>
+            game.id === id
+              ? { ...game, status, progress: status === "Completed" ? 100 : game.progress }
+              : game,
+          ),
+        )
+      }
     />
   );
 }
@@ -74,5 +82,24 @@ describe("GameBoard", () => {
 
     expect(screen.queryByRole("button", { name: "Neon Drifter" })).toBeNull();
     expect(screen.getByText("All placeholder games are already in your library.")).toBeTruthy();
+  });
+
+  it("moves a game to another list and updates both list counts", () => {
+    render(<StatefulGameBoard />);
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Move Echoes of Orion" }), {
+      target: { value: "Backlog" },
+    });
+
+    const playingHeading = screen.getByRole("heading", { name: "Playing" });
+    const playingColumn = playingHeading.parentElement?.parentElement;
+    const backlogHeading = screen.getByRole("heading", { name: "Backlog" });
+    const backlogColumn = backlogHeading.parentElement?.parentElement;
+    if (!playingColumn || !backlogColumn) throw new Error("Game lists were not rendered");
+
+    expect(within(playingColumn).queryByText("Echoes of Orion")).toBeNull();
+    expect(within(playingColumn).getByText("0")).toBeTruthy();
+    expect(within(backlogColumn).getByText("Echoes of Orion")).toBeTruthy();
+    expect(within(backlogColumn).getByText("1")).toBeTruthy();
   });
 });
