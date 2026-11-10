@@ -308,3 +308,20 @@ nav button b { color: #fff; background: #ff254f; box-shadow: 0 0 12px #ff254f55;
 .auth-card .primary:disabled { opacity: .6; cursor: wait; }
 
 .delete-button:disabled { opacity: .45; cursor: not-allowed; } /* greys out delete button until it can be used */
+.modal-form { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+.modal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.modal-field { display: flex; flex-direction: column; gap: 7px; }
+.modal-field span { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: #8d95a1; font-weight: 700; }
+.modal-field input,
+.modal-field select {
+  height: 42px;
+  border: 1px solid #dfe3ea;
+  border-radius: 8px;
+  background: #f6f7fb;
+  color: #19232d;
+  padding: 0 12px;
+  outline: none;
+}
+.modal-field input:focus,
+.modal-field select:focus { border-color: #00dcff; box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.12); }
+.modal .primary.wide { width: 100%; margin-top: 4px; }

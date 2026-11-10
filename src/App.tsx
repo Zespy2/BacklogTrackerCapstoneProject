@@ -20,6 +20,30 @@ const images = {
   city: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85",
   tower: "https://images.unsplash.com/photo-1535391879778-3bae11d29a24?auto=format&fit=crop&w=900&q=85",
 };
+const placeholderColors = ["#6f4be5", "#ff3159", "#00b7ff", "#2ec27e", "#f5a623", "#8b5cf6"];
+
+const createPlaceholderGame = (draft: { title: string; genre: string; platform: string; status: string }, id: number): Game => {
+  const imageEntries = Object.values(images);
+  const seed = draft.title.split("").reduce((total, char) => total + char.charCodeAt(0), 0);
+  const image = imageEntries[seed % imageEntries.length];
+  const color = placeholderColors[seed % placeholderColors.length];
+
+  return {
+    id,
+    title: draft.title.trim() || "Untitled Game",
+    genre: draft.genre.trim() || "Open world",
+    platform: draft.platform.trim() || "PC",
+    progress: draft.status === "Completed" ? 100 : draft.status === "Playing" ? 32 : 0,
+    hours: draft.status === "Completed" ? 18 : draft.status === "Playing" ? 7 : 0,
+    status: draft.status,
+    image,
+    color,
+    score: 4.5,
+  };
+};
+
+const gameStatusOptions = ["Backlog", "Playing", "Completed", "On hold"];
+
 // The above and the below are placeholders, definitely need to replace with actual game data and images via IGDB API.
 const initialGames: Game[] = [
   { id: 1, title: "Echoes of Orion", genre: "Sci-fi RPG", platform: "PC", progress: 68, hours: 32, status: "Playing", image: images.neon, color: "#5d46e8", score: 4.8 },
@@ -234,10 +258,29 @@ export default function App() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [currentView, setCurrentView] = useState("Recommendations");
+  const [newGameDraft, setNewGameDraft] = useState({
+    title: "",
+    genre: "RPG",
+    platform: "PC",
+    status: "Backlog" as string,
+  });
 
   const visibleGames = useMemo(() => games.filter(g => (activeList === "All games" || g.status === activeList) && g.title.toLowerCase().includes(query.toLowerCase())), [games, activeList, query]);
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(""), 2200); };
   const addGame = (game: Game) => { if (!games.some(g => g.id === game.id)) setGames([...games, game]); setShowAdd(false); notify(`${game.title} added to your backlog`); };
+  const handleCustomGameAdd = () => {
+    const title = newGameDraft.title.trim();
+    if (!title) {
+      notify("Give the game a title before adding it.");
+      return;
+    }
+
+    const nextGame = createPlaceholderGame(newGameDraft, Date.now() + Math.random());
+    setGames(prev => [nextGame, ...prev]);
+    setNewGameDraft({ title: "", genre: "RPG", platform: "PC", status: "Backlog" });
+    setShowAdd(false);
+    notify(`${nextGame.title} added to ${nextGame.status}`);
+  };
   const moveGame = (id: number, status: string) => { setGames(games.map(g => g.id === id ? { ...g, status, progress: status === "Completed" ? 100 : g.progress } : g)); notify(`Game moved to ${status}`); };
 
   // When the page first loads, ask Django whether this browser is already signed in
@@ -348,7 +391,31 @@ export default function App() {
       </main>
 
       {showAdd && <div className="modal-backdrop" onMouseDown={() => setShowAdd(false)}>
-        <div className="modal" onMouseDown={e => e.stopPropagation()}><button className="modal-close" onClick={() => setShowAdd(false)}><Icon name="x" /></button><p className="eyebrow purple">SEARCH THE CATALOG</p><h2>Add a game</h2><div className="modal-search"><Icon name="search" /><input autoFocus placeholder="Search by title, genre, or platform..." /></div>
+        <div className="modal" onMouseDown={e => e.stopPropagation()}><button className="modal-close" onClick={() => setShowAdd(false)}><Icon name="x" /></button><p className="eyebrow purple">SEARCH THE CATALOG</p><h2>Add a game</h2>
+          <div className="modal-search"><Icon name="search" /><input autoFocus placeholder="Search by title, genre, or platform..." /></div>
+          <div className="modal-form">
+            <label className="modal-field">
+              <span>Title</span>
+              <input value={newGameDraft.title} onChange={e => setNewGameDraft(d => ({ ...d, title: e.target.value }))} placeholder="Enter a game title" />
+            </label>
+            <div className="modal-grid">
+              <label className="modal-field">
+                <span>Genre</span>
+                <input value={newGameDraft.genre} onChange={e => setNewGameDraft(d => ({ ...d, genre: e.target.value }))} placeholder="RPG" />
+              </label>
+              <label className="modal-field">
+                <span>Platform</span>
+                <input value={newGameDraft.platform} onChange={e => setNewGameDraft(d => ({ ...d, platform: e.target.value }))} placeholder="PC" />
+              </label>
+            </div>
+            <label className="modal-field">
+              <span>List</span>
+              <select value={newGameDraft.status} onChange={e => setNewGameDraft(d => ({ ...d, status: e.target.value }))}>
+                {gameStatusOptions.map(option => <option key={option} value={option}>{option}</option>)}
+              </select>
+            </label>
+            <button className="primary wide" onClick={handleCustomGameAdd}>Add to {newGameDraft.status}</button>
+          </div>
           <p className="modal-label">TRENDING SEARCHES</p>
           {[{ ...initialGames[2], id: 12 }, { ...initialGames[3], id: 13 }, { ...initialGames[1], id: 14, title: "Neon Drifter" }].map(g => <div className="search-result" key={g.id}><img src={g.image} alt="" /><div><strong>{g.title}</strong><span>{g.genre} · {g.platform}</span></div><button onClick={() => addGame(g)}><Icon name="plus" /></button></div>)}
         </div>
