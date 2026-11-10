@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getCurrentUser, signIn, signOut, signUp, type User } from "./api";
+import { deleteAccount, getCurrentUser, signIn, signOut, signUp, type User } from "./api";
 
 type Game = {
   id: number;
@@ -171,9 +171,22 @@ const featureMeta: Record<string, { eyebrow: string; title: string; copy: string
   Media: { eyebrow: "WATCH · VISIT · EXPLORE", title: "Game media hub", copy: "Trailers, official links, screenshots, and artwork in one place." },
 };
 
-function FeaturePage({ view, games, onAdd, onRemove, onMove, notify }: { view: string; games: Game[]; onAdd: (game: Game) => void; onRemove: (id: number) => void; onMove: (id: number, status: string) => void; notify: (message: string) => void }) {
+function FeaturePage({ view, games, onAdd, onRemove, onMove, notify, onDeleteAccount }: { view: string; games: Game[]; onAdd: (game: Game) => void; onRemove: (id: number) => void; onMove: (id: number, status: string) => void; notify: (message: string) => void; onDeleteAccount: (password: string) => Promise<void> }) {
   const meta = featureMeta[view];
   const accountView = ["Sign up", "Sign in", "Recovery"].includes(view);
+  // Account deletion: what's typed in the confirm box and password box
+  const [deleteText, setDeleteText] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const confirmDelete = async () => {
+    setDeleting(true);
+    try {
+      await onDeleteAccount(deletePassword);
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Couldn't delete your account. Please try again.");
+      setDeleting(false);
+    }
+  };
   return <div className="feature-page">
     <div className="feature-head"><div><p className="eyebrow purple">{meta.eyebrow}</p><h1>{meta.title}</h1><p>{meta.copy}</p></div><span>INVENTORY</span></div>
 
@@ -184,7 +197,7 @@ function FeaturePage({ view, games, onAdd, onRemove, onMove, notify }: { view: s
 
     {view === "Settings" && <div className="settings-layout">
       <section className="standalone-card settings-card"><div className="settings-title"><span className="feature-glyph"><Icon name="users" size={22} /></span><div><h2>Profile</h2><p>Update how you appear across Inventory.</p></div></div><div className="settings-form"><label>Display name<input defaultValue="Alex Morgan" /></label><label>Email address<input defaultValue="alex@inventory.gg" /></label><label>Profile visibility<select defaultValue="Friends only"><option>Public</option><option>Friends only</option><option>Private</option></select></label><button className="primary" onClick={() => notify("Settings saved")}>Save changes</button></div></section>
-      <section className="standalone-card danger-zone"><span className="feature-glyph danger-glyph"><Icon name="trash" size={25} /></span><div><p className="eyebrow danger">DANGER ZONE</p><h2>Delete your account</h2><p>This permanently removes your profile, library, reviews, journal entries, and friend connections. Export your data first if you'd like to keep a copy.</p><label>Type DELETE to confirm<input placeholder="DELETE" /></label><div><button className="secondary" onClick={() => notify("Your archive is being prepared")}>Export my data</button><button className="delete-button" onClick={() => notify("Confirmation email sent")}>Delete account</button></div></div></section>
+            <section className="standalone-card danger-zone"><span className="feature-glyph danger-glyph"><Icon name="trash" size={25} /></span><div><p className="eyebrow danger">DANGER ZONE</p><h2>Delete your account</h2><p>This permanently removes your profile, library, reviews, journal entries, and friend connections. Export your data first if you'd like to keep a copy.</p><label>Type DELETE to confirm<input placeholder="DELETE" value={deleteText} onChange={e => setDeleteText(e.target.value)} /></label><label>Your password<input type="password" autoComplete="current-password" placeholder="••••••••" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} /></label><div><button className="secondary" onClick={() => notify("Your archive is being prepared")}>Export my data</button><button className="delete-button" disabled={deleteText !== "DELETE" || !deletePassword || deleting} onClick={confirmDelete}>{deleting ? "Deleting…" : "Delete account"}</button></div></div></section>
     </div>}
 
     {view === "Search" && <><div className="big-search"><Icon name="search" size={22} /><input autoFocus placeholder="Try “open-world RPG” or “co-op on PC”" /><button className="primary">Search</button></div><div className="filter-row"><button className="active">All games</button><button>PC</button><button>PlayStation</button><button>Xbox</button><button>Nintendo</button></div><FeatureGames games={games} action="Details" notify={notify} /></>}
@@ -234,6 +247,12 @@ export default function App() {
     try { await signOut(); } catch {  } // signed out locally even if Django is unreachable //comment here should be in the curly braces
     setUser(null); setProfileOpen(false); setPublicView("main");
   };
+  
+  // Permanently delete the signed-in account (Settings > Danger zone)
+  const handleDeleteAccount = async (password: string) => {
+    await deleteAccount(password);
+    setUser(null); setProfileOpen(false); setCurrentView("Recommendations"); setPublicView("main");
+  };
 
   const displayName = user?.username ?? "";
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -271,7 +290,7 @@ export default function App() {
         </header>
 
         <div className="content">
-          {currentView !== "Recommendations" ? <FeaturePage view={currentView} games={games} onAdd={addGame} onRemove={id => setGames(games.filter(g => g.id !== id))} onMove={moveGame} notify={notify} /> : <>
+          {currentView !== "Recommendations" ? <FeaturePage view={currentView} games={games} onAdd={addGame} onRemove={id => setGames(games.filter(g => g.id !== id))} onMove={moveGame} notify={notify} onDeleteAccount={handleDeleteAccount} /> : <>
           <section className="welcome">
             <div><p className="eyebrow purple">MONDAY, 14 OCTOBER</p><h1>Good evening, {displayName}.</h1><p>Your backlog isn't getting any smaller. Let's change that.</p></div>
             <div className="streak"><span>7</span><div><strong>day streak</strong><small>Keep it going</small></div></div>

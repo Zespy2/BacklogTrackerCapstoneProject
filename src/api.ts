@@ -60,3 +60,7 @@ export async function signIn(email: string, password: string): Promise<User> {
 export async function signOut(): Promise<void> {
   await post("/api/logout/");
 }
+
+export async function deleteAccount(password: string): Promise<void> {
+  await post("/api/delete-account/", { password });
+}
