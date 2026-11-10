@@ -187,7 +187,7 @@ function FeaturePage({ view, games, availableGames, onAdd, onRemove, onMove, not
 
     {view === "Remove games" && <><div className="selection-bar"><span><b>{games.length}</b> games in your library</span><span>Select a game to remove it from your account</span></div><FeatureGames games={games} action="Remove" notify={notify} onRemove={onRemove} /></>}
 
-    {view === "Move games" && <GameBoard games={games} catalogGames={availableGames} onAdd={onAdd} onMove={onMove} />}
+    {view === "Move games" && <GameBoard games={games} catalogGames={availableGames} onAdd={onAdd} onMove={onMove} onRemove={id => { const game = games.find(item => item.id === id); onRemove(id); notify(`${game?.title ?? "Game"} removed`); }} />}
 
     {view === "Reviews" && <section className="reviews-layout"><div className="review-editor standalone-card"><p className="collection-label">WRITE A REVIEW</p><div className="review-game"><img src={games[0].image} alt="" /><div><b>{games[0].title}</b><span>32 hours played</span></div></div><div className="stars">{[1,2,3,4,5].map(x => <button key={x}><Icon name="star" /></button>)}</div><textarea placeholder="What did you think? Avoid spoilers if you can..." /><div><label><input type="checkbox" /> Contains spoilers</label><button className="primary" onClick={() => notify("Review published")}>Publish review</button></div></div><div className="review-list"><p className="collection-label">YOUR REVIEWS</p>{games.slice(0,3).map((g,i)=><article key={g.id}><img src={g.image} alt="" /><div><b>{g.title}</b><span>★ {4.5 + i * .1} · {i+2} months ago</span><p>{i === 0 ? "A brilliant world that rewards curiosity at every turn." : "I kept thinking about this one long after the credits."}</p></div></article>)}</div></section>}
 

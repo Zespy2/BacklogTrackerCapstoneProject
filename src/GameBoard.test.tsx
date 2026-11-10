@@ -47,6 +47,7 @@ function StatefulGameBoard() {
           ),
         )
       }
+      onRemove={id => setGames(current => current.filter(game => game.id !== id))}
     />
   );
 }
@@ -73,6 +74,7 @@ describe("GameBoard", () => {
           catalogGames={[catalogGame]}
           onAdd={() => {}}
           onMove={() => {}}
+          onRemove={() => {}}
         />
       );
     }
@@ -101,5 +103,18 @@ describe("GameBoard", () => {
     expect(within(playingColumn).getByText("0")).toBeTruthy();
     expect(within(backlogColumn).getByText("Echoes of Orion")).toBeTruthy();
     expect(within(backlogColumn).getByText("1")).toBeTruthy();
+  });
+
+  it("removes a game from its list and updates the list count", () => {
+    render(<StatefulGameBoard />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove Echoes of Orion" }));
+
+    const playingHeading = screen.getByRole("heading", { name: "Playing" });
+    const playingColumn = playingHeading.parentElement?.parentElement;
+    if (!playingColumn) throw new Error("Playing list was not rendered");
+
+    expect(within(playingColumn).queryByText("Echoes of Orion")).toBeNull();
+    expect(within(playingColumn).getByText("0")).toBeTruthy();
   });
 });

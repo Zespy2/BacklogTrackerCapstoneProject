@@ -6,9 +6,10 @@ type GameBoardProps = {
   catalogGames: Game[];
   onAdd: (game: Game, status: GameStatus) => void;
   onMove: (id: number, status: GameStatus) => void;
+  onRemove: (id: number) => void;
 };
 
-export default function GameBoard({ games, catalogGames, onAdd, onMove }: GameBoardProps) {
+export default function GameBoard({ games, catalogGames, onAdd, onMove, onRemove }: GameBoardProps) {
   const [addingTo, setAddingTo] = useState<GameStatus | null>(null);
 
   return (
@@ -75,6 +76,14 @@ export default function GameBoard({ games, catalogGames, onAdd, onMove }: GameBo
                       <option key={option}>{option}</option>
                     ))}
                   </select>
+                  <button
+                    className="board-remove-button"
+                    type="button"
+                    aria-label={`Remove ${game.title}`}
+                    onClick={() => onRemove(game.id)}
+                  >
+                    Remove
+                  </button>
                 </div>
               </article>
             ))}
