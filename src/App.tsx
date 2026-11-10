@@ -230,7 +230,7 @@ function FeaturePage({ view, games, onAdd, onRemove, onMove, notify, onDeleteAcc
 
     {view === "Remove games" && <><div className="selection-bar"><span><b>{games.length}</b> games in your library</span><span>Select a game to remove it from your account</span></div><FeatureGames games={games} action="Remove" notify={notify} onRemove={onRemove} /></>}
 
-    {view === "Move games" && <section className="board">{["Playing", "Backlog", "Completed"].map(status => <div className="board-column" key={status} onDragOver={e => e.preventDefault()} onDrop={() => onDropToStatus?.(status)}><div><h3>{status}</h3><span>{games.filter(g => g.status === status).length}</span></div>{games.filter(g => g.status === status).map(game => <article key={game.id} draggable onDragStart={() => onDragStart?.(game.id)} onDragEnd={() => onDragEnd?.()}><img src={game.image} alt="" /><div><b>{game.title}</b><small>{game.platform} · {game.hours}h</small><select value={game.status} onChange={e => onMove(game.id, e.target.value)}>{["Playing", "Backlog", "Completed", "On hold"].map(s => <option key={s}>{s}</option>)}</select></div></article>)}</div>)}</section>}
+    {view === "Move games" && <section className="board">{["Playing", "Backlog", "Completed"].map(status => <div className="board-column" key={status} onDragOver={e => e.preventDefault()} onDrop={() => onDropToStatus?.(status)}><div><h3>{status}</h3><span>{games.filter(g => g.status === status).length}</span></div>{games.filter(g => g.status === status).map(game => <article key={game.id} draggable onDragStart={() => onDragStart?.(game.id)} onDragEnd={() => onDragEnd?.()}><img src={game.image} alt="" /><div><b>{game.title}</b><small>{game.platform} · {game.hours}h</small><select value={game.status} onChange={e => onMove(game.id, e.target.value)}>{["Playing", "Backlog", "Completed", "On hold"].map(s => <option key={s}>{s}</option>)}</select><button className="remove-action" onClick={() => onRemove(game.id)}><Icon name="trash" /> Remove</button></div></article>)}</div>)}</section>}
 
     {view === "Reviews" && <section className="reviews-layout"><div className="review-editor standalone-card"><p className="collection-label">WRITE A REVIEW</p><div className="review-game"><img src={games[0].image} alt="" /><div><b>{games[0].title}</b><span>32 hours played</span></div></div><div className="stars">{[1,2,3,4,5].map(x => <button key={x}><Icon name="star" /></button>)}</div><textarea placeholder="What did you think? Avoid spoilers if you can..." /><div><label><input type="checkbox" /> Contains spoilers</label><button className="primary" onClick={() => notify("Review published")}>Publish review</button></div></div><div className="review-list"><p className="collection-label">YOUR REVIEWS</p>{games.slice(0,3).map((g,i)=><article key={g.id}><img src={g.image} alt="" /><div><b>{g.title}</b><span>★ {4.5 + i * .1} · {i+2} months ago</span><p>{i === 0 ? "A brilliant world that rewards curiosity at every turn." : "I kept thinking about this one long after the credits."}</p></div></article>)}</div></section>}
 
@@ -283,6 +283,7 @@ export default function App() {
     notify(`${nextGame.title} added to ${nextGame.status}`);
   };
   const moveGame = (id: number, status: string) => { setGames(prev => prev.map(g => g.id === id ? { ...g, status, progress: status === "Completed" ? 100 : g.progress } : g)); notify(`Game moved to ${status}`); };
+  const removeGame = (id: number) => { setGames(prev => prev.filter(g => g.id !== id)); notify("Game removed from your library"); };
   const handleDropToStatus = (status: string) => {
     if (draggedGameId === null) return;
     moveGame(draggedGameId, status);
@@ -339,7 +340,7 @@ export default function App() {
         </header>
 
         <div className="content">
-          {currentView !== "Recommendations" ? <FeaturePage view={currentView} games={games} onAdd={addGame} onRemove={id => setGames(games.filter(g => g.id !== id))} onMove={moveGame} notify={notify} onDeleteAccount={handleDeleteAccount} onDragStart={id => setDraggedGameId(id)} onDragEnd={() => setDraggedGameId(null)} onDropToStatus={handleDropToStatus} /> : <>
+          {currentView !== "Recommendations" ? <FeaturePage view={currentView} games={games} onAdd={addGame} onRemove={removeGame} onMove={moveGame} notify={notify} onDeleteAccount={handleDeleteAccount} onDragStart={id => setDraggedGameId(id)} onDragEnd={() => setDraggedGameId(null)} onDropToStatus={handleDropToStatus} /> : <>
           <section className="welcome">
             <div><p className="eyebrow purple">MONDAY, 14 OCTOBER</p><h1>Good evening, {displayName}.</h1><p>Your backlog isn't getting any smaller. Let's change that.</p></div>
             <div className="streak"><span>7</span><div><strong>day streak</strong><small>Keep it going</small></div></div>
@@ -371,7 +372,7 @@ export default function App() {
             {visibleGames.map(game => <article className="game-card" key={game.id} draggable onDragStart={() => setDraggedGameId(game.id)} onDragEnd={() => setDraggedGameId(null)}>
               <div className="cover"><img src={game.image} alt="" /><span>{game.platform}</span><div className="card-menu">
                 <button><Icon name="more" /></button>
-                <div className="card-pop"><p>Move to</p>{["Playing", "Backlog", "Completed", "On hold"].map(s => <button onClick={() => moveGame(game.id, s)} key={s}>{s}</button>)}<button className="danger" onClick={() => { setGames(games.filter(g => g.id !== game.id)); notify("Game removed"); }}>Remove game</button></div>
+                <div className="card-pop"><p>Move to</p>{["Playing", "Backlog", "Completed", "On hold"].map(s => <button onClick={() => moveGame(game.id, s)} key={s}>{s}</button>)}<button className="danger" onClick={() => removeGame(game.id)}>Remove game</button></div>
               </div></div>
               <div className="card-info"><div><small>{game.genre}</small><h3>{game.title}</h3></div><span className="rating"><Icon name="star" size={13} />{game.score}</span></div>
               <div className="progress-row"><div><i style={{ width: `${game.progress}%`, background: game.color }} /></div><span>{game.progress}%</span></div>
