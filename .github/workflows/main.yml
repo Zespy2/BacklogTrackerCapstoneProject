@@ -65,9 +65,29 @@ jobs:
       - name: Build frontend
         run: pnpm build
 
+  eval:
+    name: Eval
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AI evaluation suite
+        working-directory: ./backend
+        run: python evaluations/run_evals.py
+
   deploy:
     name: Deploy
-    needs: test
+    needs: [test, eval]
     runs-on: ubuntu-latest
     steps:
       - name: Deploy application
