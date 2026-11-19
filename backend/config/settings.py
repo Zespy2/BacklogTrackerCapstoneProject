@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Our app: user accounts and the sign-in / sign-up API
     "accounts",
+    "recommendations",
 ]
 
 MIDDLEWARE = [

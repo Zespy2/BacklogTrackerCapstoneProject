@@ -1,0 +1,120 @@
+
+[
+  {
+    "id": 1,
+    "games": [{"title": "Elden Ring"}],
+    "favorite_genres": ["RPG"],
+    "expected_games": ["Elden Ring"]
+  },
+  {
+    "id": 2,
+    "games": [{"title": "Stardew Valley"}],
+    "favorite_genres": ["Simulation"],
+    "expected_games": ["Stardew Valley"]
+  },
+  {
+    "id": 3,
+    "games": [{"title": "Minecraft"}],
+    "favorite_genres": ["Sandbox"],
+    "expected_games": ["Minecraft"]
+  },
+  {
+    "id": 4,
+    "games": [{"title": "The Witcher 3"}],
+    "favorite_genres": ["RPG"],
+    "expected_games": ["The Witcher 3"]
+  },
+  {
+    "id": 5,
+    "games": [{"title": "Hades"}],
+    "favorite_genres": ["Action"],
+    "expected_games": ["Hades"]
+  },
+  {
+    "id": 6,
+    "games": [
+      {"title": "Elden Ring"},
+      {"title": "Stardew Valley"}
+    ],
+    "favorite_genres": ["RPG"],
+    "expected_games": ["Elden Ring"]
+  },
+  {
+    "id": 7,
+    "games": [
+      {"title": "Minecraft"},
+      {"title": "Hades"}
+    ],
+    "favorite_genres": ["Action"],
+    "expected_games": ["Hades"]
+  },
+  {
+    "id": 8,
+    "games": [
+      {"title": "Stardew Valley"},
+      {"title": "The Witcher 3"}
+    ],
+    "favorite_genres": ["Simulation"],
+    "expected_games": ["Stardew Valley"]
+  },
+  {
+    "id": 9,
+    "games": [
+      {"title": "Hades"},
+      {"title": "Elden Ring"}
+    ],
+    "favorite_genres": ["RPG"],
+    "expected_games": ["Elden Ring"]
+  },
+  {
+    "id": 10,
+    "games": [
+      {"title": "Minecraft"},
+      {"title": "Stardew Valley"}
+    ],
+    "favorite_genres": ["Sandbox"],
+    "expected_games": ["Minecraft"]
+  },
+  {
+    "id": 11,
+    "games": [
+      {"title": "The Witcher 3"},
+      {"title": "Hades"}
+    ],
+    "favorite_genres": ["RPG"],
+    "expected_games": ["The Witcher 3"]
+  },
+  {
+    "id": 12,
+    "games": [
+      {"title": "Stardew Valley"},
+      {"title": "Elden Ring"}
+    ],
+    "favorite_genres": ["Simulation"],
+    "expected_games": ["Stardew Valley"]
+  },
+  {
+    "id": 13,
+    "games": [
+      {"title": "Hades"},
+      {"title": "Minecraft"}
+    ],
+    "favorite_genres": ["Sandbox"],
+    "expected_games": ["Minecraft"]
+  },
+  {
+    "id": 14,
+    "games": [
+      {"title": "Elden Ring"},
+      {"title": "The Witcher 3"}
+    ],
+    "favorite_genres": ["RPG"],
+    "expected_games": ["Elden Ring", "The Witcher 3"]
+  },
+  {
+    "id": 15,
+    "games": [],
+    "favorite_genres": ["RPG"],
+    "expected_games": []
+  }
+]
