@@ -7,26 +7,25 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "test": "vitest run"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.0",
+    "jsdom": "^26.1.0",
     "tailwindcss": "^4.0.0",
     "@tailwindcss/vite": "^4.0.0",
     "oxfmt": "^0.2.0",
     "typescript": "^5.7.0",
-<<<<<<< HEAD
-    "vite": "^8.0.5"
-=======
     "vite": "^8.3.6",
     "vitest": "^4.0.0"
->>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
   }
 }

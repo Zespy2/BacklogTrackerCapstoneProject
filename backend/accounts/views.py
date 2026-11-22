@@ -132,7 +132,6 @@ def logout_view(request):
     logout(request)
     return JsonResponse({"ok": True})
 
-<<<<<<< HEAD
 @require_POST
 def delete_account(request):
     """POST /api/delete-account/ with {password} - permanently delete the signed-in account."""
@@ -151,7 +150,6 @@ def delete_account(request):
     logout(request)
     user.delete()  # removes the row from the accounts table
     return JsonResponse({"ok": True})
-=======
 
 def igdb_access_token():
     cache_key = f"igdb_access_token:{settings.IGDB_CLIENT_ID}"
@@ -287,4 +285,3 @@ def search_games(request):
         return error("IGDB search is temporarily unavailable. Please try again.", status=502)
 
     return JsonResponse({"games": games})
->>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
