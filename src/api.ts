@@ -1,8 +1,56 @@
 // Helpers for talking to the Django backend (backend/accounts/views.py).
 // In development, Vite forwards every request that starts with /api to
 // Django at http://127.0.0.1:8000 (see the "proxy" setting in vite.config.ts).
+import { gameStatuses, type Game } from "./gameTypes";
 
 export type User = { id: number; username: string; email: string };
+
+function isGame(value: unknown): value is Game {
+  if (typeof value !== "object" || value === null) return false;
+  const game = value as Record<string, unknown>;
+  return (
+    typeof game.id === "number" &&
+    typeof game.title === "string" &&
+    typeof game.genre === "string" &&
+    typeof game.platform === "string" &&
+    typeof game.progress === "number" &&
+    typeof game.hours === "number" &&
+    gameStatuses.some(status => status === game.status) &&
+    typeof game.image === "string" &&
+    typeof game.color === "string" &&
+    (game.score === undefined || typeof game.score === "number")
+  );
+}
+
+export async function searchGames(query: string): Promise<Game[]> {
+  const response = await fetch(`/api/games/search/?q=${encodeURIComponent(query)}`, {
+    credentials: "same-origin",
+  });
+  const data: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message =
+      typeof data === "object" &&
+      data !== null &&
+      "error" in data &&
+      typeof data.error === "string"
+        ? data.error
+        : "Game search failed. Please try again.";
+    throw new Error(message);
+  }
+
+  if (
+    typeof data !== "object" ||
+    data === null ||
+    !("games" in data) ||
+    !Array.isArray(data.games) ||
+    !data.games.every(isGame)
+  ) {
+    throw new Error("Game search returned an invalid response. Please try again.");
+  }
+
+  return data.games;
+}
 
 // Django sends the CSRF token as a cookie; we copy it into a header on POSTs.
 function getCookie(name: string): string {

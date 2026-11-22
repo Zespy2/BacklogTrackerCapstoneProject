@@ -22,6 +22,11 @@
     "@tailwindcss/vite": "^4.0.0",
     "oxfmt": "^0.2.0",
     "typescript": "^5.7.0",
+<<<<<<< HEAD
     "vite": "^8.0.5"
+=======
+    "vite": "^8.3.6",
+    "vitest": "^4.0.0"
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
   }
 }

@@ -9,5 +9,9 @@ urlpatterns = [
     path("signup/", views.signup, name="signup"),
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
+<<<<<<< HEAD
     path("delete-account/", views.delete_account, name="delete_account"),
+=======
+    path("games/search/", views.search_games, name="search_games"),
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
 ]

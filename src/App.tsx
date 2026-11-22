@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+<<<<<<< HEAD
 import { deleteAccount, getCurrentUser, signIn, signOut, signUp, type User } from "./api";
 
 type Game = {
@@ -13,6 +14,12 @@ type Game = {
   color: string;
   score?: number;
 };
+=======
+import { getCurrentUser, signIn, signOut, signUp, type User } from "./api";
+import GameBoard from "./GameBoard";
+import GameSearch from "./GameSearch";
+import { gameStatuses, type Game, type GameStatus } from "./gameTypes";
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
 
 const images = {
   neon: "https://images.unsplash.com/photo-1672872476232-da16b45c9001?auto=format&fit=crop&w=1200&q=85",
@@ -20,6 +27,7 @@ const images = {
   city: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85",
   tower: "https://images.unsplash.com/photo-1535391879778-3bae11d29a24?auto=format&fit=crop&w=900&q=85",
 };
+<<<<<<< HEAD
 const placeholderColors = ["#6f4be5", "#ff3159", "#00b7ff", "#2ec27e", "#f5a623", "#8b5cf6"];
 
 const createPlaceholderGame = (draft: { title: string; genre: string; platform: string; status: string }, id: number): Game => {
@@ -52,6 +60,8 @@ const initialGames: Game[] = [
   { id: 4, title: "Citadel Zero", genre: "Strategy", platform: "Xbox", progress: 0, hours: 0, status: "Backlog", image: images.tower, color: "#e19645", score: 4.5 },
 ];
 
+=======
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
 const Icon = ({ name, size = 18 }: { name: string; size?: number }) => {
   const paths: Record<string, React.ReactNode> = {
     home: <><path d="m3 10 9-7 9 7" /><path d="M5 9v11h14V9M9 20v-6h6v6" /></>,
@@ -95,9 +105,9 @@ function PublicSite({ page, onNavigate }: { page: "main" | "about"; onNavigate: 
         </div>
         <div className="landing-visual">
           <div className="orbit orbit-one" /><div className="orbit orbit-two" />
-          <article className="landing-game-card card-back"><img src={images.night} alt="Neon city game artwork" /><span>BACKLOG</span><h3>Midnight Circuit</h3></article>
-          <article className="landing-game-card card-front"><img src={images.neon} alt="Futuristic game world" /><span>NOW PLAYING · 68%</span><h3>Echoes of Orion</h3><div><i /></div></article>
-          <div className="floating-stat"><Icon name="star" /><div><b>4.8</b><span>YOUR RATING</span></div></div>
+          <article className="landing-game-card card-back"><img src={images.night} alt="Neon city artwork" /><span>YOUR LIBRARY</span><h3>All your games, organized</h3></article>
+          <article className="landing-game-card card-front"><img src={images.neon} alt="Futuristic city artwork" /><span>SEARCH IGDB</span><h3>Find your next game</h3><div><i /></div></article>
+          <div className="floating-stat"><Icon name="search" /><div><b>IGDB</b><span>GAME DATABASE</span></div></div>
         </div>
       </section>
       <section className="landing-strip"><span>TRACK</span><i /><span>DISCOVER</span><i /><span>REMEMBER</span><i /><span>SHARE</span></section>
@@ -195,7 +205,11 @@ const featureMeta: Record<string, { eyebrow: string; title: string; copy: string
   Media: { eyebrow: "WATCH · VISIT · EXPLORE", title: "Game media hub", copy: "Trailers, official links, screenshots, and artwork in one place." },
 };
 
+<<<<<<< HEAD
 function FeaturePage({ view, games, onAdd, onRemove, onMove, notify, onDeleteAccount, onDragStart, onDragEnd, onDropToStatus }: { view: string; games: Game[]; onAdd: (game: Game) => void; onRemove: (id: number) => void; onMove: (id: number, status: string) => void; notify: (message: string) => void; onDeleteAccount: (password: string) => Promise<void>; onDragStart?: (id: number) => void; onDragEnd?: () => void; onDropToStatus?: (status: string) => void; }) {
+=======
+export function FeaturePage({ view, games, availableGames, onAdd, onRemove, onMove, notify }: { view: string; games: Game[]; availableGames: Game[]; onAdd: (game: Game, status?: GameStatus) => void; onRemove: (id: number) => void; onMove: (id: number, status: GameStatus) => void; notify: (message: string) => void }) {
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
   const meta = featureMeta[view];
   const accountView = ["Sign up", "Sign in", "Recovery"].includes(view);
   // Account deletion: what's typed in the confirm box and password box
@@ -224,26 +238,34 @@ function FeaturePage({ view, games, onAdd, onRemove, onMove, notify, onDeleteAcc
             <section className="standalone-card danger-zone"><span className="feature-glyph danger-glyph"><Icon name="trash" size={25} /></span><div><p className="eyebrow danger">DANGER ZONE</p><h2>Delete your account</h2><p>This permanently removes your profile, library, reviews, journal entries, and friend connections. Export your data first if you'd like to keep a copy.</p><label>Type DELETE to confirm<input placeholder="DELETE" value={deleteText} onChange={e => setDeleteText(e.target.value)} /></label><label>Your password<input type="password" autoComplete="current-password" placeholder="••••••••" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} /></label><div><button className="secondary" onClick={() => notify("Your archive is being prepared")}>Export my data</button><button className="delete-button" disabled={deleteText !== "DELETE" || !deletePassword || deleting} onClick={confirmDelete}>{deleting ? "Deleting…" : "Delete account"}</button></div></div></section>
     </div>}
 
-    {view === "Search" && <><div className="big-search"><Icon name="search" size={22} /><input autoFocus placeholder="Try “open-world RPG” or “co-op on PC”" /><button className="primary">Search</button></div><div className="filter-row"><button className="active">All games</button><button>PC</button><button>PlayStation</button><button>Xbox</button><button>Nintendo</button></div><FeatureGames games={games} action="Details" notify={notify} /></>}
+    {view === "Search" && <><GameSearch label="Search IGDB games" placeholder="Search games by title..." onAdd={onAdd} existingGames={games} /><div className="filter-row"><button className="active">All games</button><button>PC</button><button>PlayStation</button><button>Xbox</button><button>Nintendo</button></div></>}
 
+<<<<<<< HEAD
     {view === "Add games" && <><div className="big-search"><Icon name="search" /><input placeholder="Search Games..." /></div><p className="collection-label">POPULAR THIS WEEK</p><FeatureGames games={games} action="Add" notify={notify} onAction={onAdd} /></>}
+=======
+    {view === "Add games" && <GameSearch label="Search games to add" placeholder="Search games by title..." onAdd={onAdd} existingGames={games} />}
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
 
     {view === "Remove games" && <><div className="selection-bar"><span><b>{games.length}</b> games in your library</span><span>Select a game to remove it from your account</span></div><FeatureGames games={games} action="Remove" notify={notify} onRemove={onRemove} /></>}
 
     {view === "Move games" && <section className="board">{["Playing", "Backlog", "Completed"].map(status => <div className="board-column" key={status} onDragOver={e => e.preventDefault()} onDrop={() => onDropToStatus?.(status)}><div><h3>{status}</h3><span>{games.filter(g => g.status === status).length}</span></div>{games.filter(g => g.status === status).map(game => <article key={game.id} draggable onDragStart={() => onDragStart?.(game.id)} onDragEnd={() => onDragEnd?.()}><img src={game.image} alt="" /><div><b>{game.title}</b><small>{game.platform} · {game.hours}h</small><select value={game.status} onChange={e => onMove(game.id, e.target.value)}>{["Playing", "Backlog", "Completed", "On hold"].map(s => <option key={s}>{s}</option>)}</select><button className="remove-action" onClick={() => onRemove(game.id)}><Icon name="trash" /> Remove</button></div></article>)}</div>)}</section>}
 
-    {view === "Reviews" && <section className="reviews-layout"><div className="review-editor standalone-card"><p className="collection-label">WRITE A REVIEW</p><div className="review-game"><img src={games[0].image} alt="" /><div><b>{games[0].title}</b><span>32 hours played</span></div></div><div className="stars">{[1,2,3,4,5].map(x => <button key={x}><Icon name="star" /></button>)}</div><textarea placeholder="What did you think? Avoid spoilers if you can..." /><div><label><input type="checkbox" /> Contains spoilers</label><button className="primary" onClick={() => notify("Review published")}>Publish review</button></div></div><div className="review-list"><p className="collection-label">YOUR REVIEWS</p>{games.slice(0,3).map((g,i)=><article key={g.id}><img src={g.image} alt="" /><div><b>{g.title}</b><span>★ {4.5 + i * .1} · {i+2} months ago</span><p>{i === 0 ? "A brilliant world that rewards curiosity at every turn." : "I kept thinking about this one long after the credits."}</p></div></article>)}</div></section>}
+    {view === "Reviews" && (games[0] ? <section className="reviews-layout"><div className="review-editor standalone-card"><p className="collection-label">WRITE A REVIEW</p><div className="review-game">{games[0].image && <img src={games[0].image} alt="" />}<div><b>{games[0].title}</b><span>{games[0].hours} hours played</span></div></div><div className="stars">{[1,2,3,4,5].map(x=><button key={x}><Icon name="star" /></button>)}</div><textarea placeholder="What did you think? Avoid spoilers if you can..." /><div><label><input type="checkbox" /> Contains spoilers</label><button className="primary" onClick={() => notify("Review published")}>Publish review</button></div></div><div className="review-list"><p className="collection-label">YOUR REVIEWS</p><p className="igdb-message">Your reviews will appear here once they are saved.</p></div></section> : <p className="igdb-message">Add a game to your library before writing a review.</p>)}
 
-    {view === "Journal" && <section className="journal-view"><div className="journal-stats"><div><b>12</b><span>sessions this month</span></div><div><b>34h</b><span>time played</span></div><div><b>3</b><span>milestones reached</span></div><button className="primary" onClick={() => notify("New journal entry started")}><Icon name="plus" /> New entry</button></div><div className="journal-days"><p className="collection-label">OCTOBER 2025</p>{[["14","Echoes of Orion","Reached the floating observatory after two hours exploring the outer rim.","2h 18m"],["12","Midnight Circuit","Finally beat my personal best on the Osaka night route.","48m"],["09","The Last Signal","Started a new adventure. The sound design is already incredible.","1h 32m"]].map(x=><article key={x[0]}><div className="date"><b>{x[0]}</b><span>OCT</span></div><span className="line-dot" /><img src={games.find(g=>g.title===x[1])?.image} alt="" /><div><h3>{x[1]}</h3><p>{x[2]}</p><small><Icon name="clock" size={13} />{x[3]}</small></div></article>)}</div></section>}
+    {view === "Journal" && <section className="journal-view"><p className="igdb-message">Journal entries are not available yet. Your game activity will appear here when tracking is connected.</p></section>}
 
     {view === "Sharing" && <section className="sharing-grid"><div className="share-preview"><div className="share-banner"><img src={images.neon} alt="" /><div><span>INVENTORY COLLECTION</span><h2>Alex's must-play adventures</h2><p>12 games · Updated today</p></div></div><div className="share-covers">{games.map(g=><img key={g.id} src={g.image} alt="" />)}</div></div><div className="standalone-card share-settings"><h2>Share your list</h2><p>Anyone with the link can view this collection.</p><label>Share link<div className="copy-field"><input value="inventory.gg/alex/adventures" readOnly /><button onClick={() => notify("Share link copied")}><Icon name="link" /></button></div></label><div className="share-buttons"><button onClick={() => notify("Shared with friends")}><Icon name="users" />Friends</button><button onClick={() => notify("Share sheet opened")}><Icon name="share" />More</button></div></div></section>}
 
-    {view === "Media" && <><section className="media-hero"><img src={images.neon} alt="Echoes of Orion cinematic screenshot" /><button onClick={() => notify("Trailer playing")}><Icon name="play" size={28} /></button><div><span>OFFICIAL TRAILER · 2:14</span><h2>Echoes of Orion</h2></div></section><div className="media-lower"><div><p className="collection-label">SCREENSHOTS</p><div className="screenshot-grid">{Object.values(images).slice(1).map((image,i)=><img src={image} alt={`Game screenshot ${i+1}`} key={image} />)}</div></div><div className="official-links"><p className="collection-label">OFFICIAL LINKS</p>{["Official website","Steam store page","Community wiki"].map(x=><button key={x}><Icon name="link" />{x}<span>↗</span></button>)}</div></div></>}
+    {view === "Media" && <p className="igdb-message">Game media isn't available from IGDB search yet.</p>}
   </div>;
 }
 // Would comment out line 202 if I could. Sharing feature is not a feature we want, but would rather not delete permanently.
 function FeatureGames({ games, action, notify, onAction, onRemove }: { games: Game[]; action: string; notify: (message: string) => void; onAction?: (game: Game) => void; onRemove?: (id: number) => void }) {
+<<<<<<< HEAD
   return <div className="catalog-grid">{games.map(game => <article key={game.id}><img src={game.image} alt="" /><div><span>{game.genre} · {game.platform}</span><h3>{game.title}</h3><p><Icon name="star" size={13} /> {game.score} <i /> {game.hours || "—"}h played</p><button className={action === "Remove" ? "remove-action" : "secondary"} onClick={() => { onAction?.(game); onRemove?.(game.id); notify(action === "Remove" ? `${game.title} removed` : action === "Add" ? `${game.title} added` : `Opening ${game.title}`); }}>{action === "Add" && <Icon name="plus" />}{action === "Remove" && <Icon name="trash" />}{action}</button></div></article>)}</div>;
+=======
+  return <div className="catalog-grid">{games.map(game => <article key={game.id}>{game.image ? <img src={game.image} alt="" /> : <div className="cover-unavailable" role="img" aria-label={`${game.title}: cover art unavailable`}>Cover art unavailable</div>}<div><span>{game.genre} · {game.platform}</span><h3>{game.title}</h3><p><Icon name="star" size={13} /> {game.score} <i /> {game.hours || "—"}h played</p><button className={action === "Remove" ? "remove-action" : "secondary"} onClick={() => { if (action === "Add" && onAction) { onAction(game); return; } onRemove?.(game.id); notify(action === "Remove" ? `${game.title} removed` : `Opening ${game.title}`); }}>{action === "Add" && <Icon name="plus" />}{action === "Remove" && <Icon name="trash" />}{action}</button></div></article>)}</div>;
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
 }
 
 export default function App() {
@@ -251,7 +273,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [publicView, setPublicView] = useState<"main" | "about" | "signin">("main");
-  const [games, setGames] = useState(initialGames);
+  const [games, setGames] = useState<Game[]>([]);
   const [activeList, setActiveList] = useState("All games");
   const [query, setQuery] = useState("");
   const [showAdd, setShowAdd] = useState(false);
@@ -267,6 +289,8 @@ export default function App() {
   });
 
   const visibleGames = useMemo(() => games.filter(g => (activeList === "All games" || g.status === activeList) && g.title.toLowerCase().includes(query.toLowerCase())), [games, activeList, query]);
+  const featuredGame = games.find(game => game.status === "Playing") ?? games[0];
+  const totalHours = games.reduce((total, game) => total + game.hours, 0);
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(""), 2200); };
   const addGame = (game: Game) => { if (!games.some(g => g.id === game.id)) setGames([...games, game]); setShowAdd(false); notify(`${game.title} added to your backlog`); };
   const handleCustomGameAdd = () => {
@@ -340,39 +364,56 @@ export default function App() {
         </header>
 
         <div className="content">
+<<<<<<< HEAD
           {currentView !== "Recommendations" ? <FeaturePage view={currentView} games={games} onAdd={addGame} onRemove={removeGame} onMove={moveGame} notify={notify} onDeleteAccount={handleDeleteAccount} onDragStart={id => setDraggedGameId(id)} onDragEnd={() => setDraggedGameId(null)} onDropToStatus={handleDropToStatus} /> : <>
+=======
+          {currentView !== "Recommendations" ? <FeaturePage view={currentView} games={games} availableGames={[]} onAdd={addGame} onRemove={id => setGames(games.filter(g => g.id !== id))} onMove={moveGame} notify={notify} /> : <>
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
           <section className="welcome">
             <div><p className="eyebrow purple">MONDAY, 14 OCTOBER</p><h1>Good evening, {displayName}.</h1><p>Your backlog isn't getting any smaller. Let's change that.</p></div>
             <div className="streak"><span>7</span><div><strong>day streak</strong><small>Keep it going</small></div></div>
           </section>
 
           <section className="hero">
-            <img src={images.neon} alt="Neon-lit futuristic city" />
-            <div className="hero-shade" />
-            <div className="hero-content">
-              <span className="chip">NOW PLAYING</span>
-              <h2>Echoes of Orion</h2>
-              <p>Lost among the stars. Found in the choices you make.</p>
-              <div className="hero-progress"><span><b>68%</b> complete</span><div><i /></div><span>32h played</span></div>
-              <div className="hero-actions"><button className="light-button"><Icon name="play" /> Watch trailer</button><button className="glass-button" onClick={() => notify("Journal entry opened")}><Icon name="journal" /> Add journal entry</button><button className="icon-button" onClick={() => notify("Share link copied")}><Icon name="share" /></button></div>
-            </div>
-            <div className="hero-rating"><Icon name="star" /><b>4.8</b><span>COMMUNITY</span></div>
+            {featuredGame ? <>
+              {featuredGame.image && <img src={featuredGame.image} alt={`${featuredGame.title} cover art`} />}
+              <div className="hero-shade" />
+              <div className="hero-content">
+                <span className="chip">{featuredGame.status.toUpperCase()}</span>
+                <h2>{featuredGame.title}</h2>
+                <p>{featuredGame.genre} · {featuredGame.platform}</p>
+                <div className="hero-progress"><span><b>{featuredGame.progress}%</b> complete</span><div><i style={{ width: `${featuredGame.progress}%` }} /></div><span>{featuredGame.hours}h played</span></div>
+                <div className="hero-actions"><button className="glass-button" onClick={() => notify("Journal entries aren't available yet")}><Icon name="journal" /> Add journal entry</button></div>
+              </div>
+              {featuredGame.score !== undefined && <div className="hero-rating"><Icon name="star" /><b>{featuredGame.score}</b><span>IGDB RATING</span></div>}
+            </> : <div className="hero-empty">
+              <span className="chip">YOUR GAME LIBRARY</span>
+              <h2>Start your collection</h2>
+              <p>Search IGDB for real games and add one to your backlog.</p>
+              <button className="light-button" onClick={() => setCurrentView("Add games")}><Icon name="search" /> Browse games</button>
+            </div>}
           </section>
 
           <section className="stats">
-            <div><span className="stat-icon purple-bg"><Icon name="play" /></span><p>Currently playing<strong>{games.filter(g => g.status === "Playing").length}</strong><small>2 this month</small></p></div>
-            <div><span className="stat-icon blue-bg"><Icon name="library" /></span><p>In your backlog<strong>{games.filter(g => g.status === "Backlog").length}</strong><small>≈ 148 hours</small></p></div>
-            <div><span className="stat-icon green-bg"><Icon name="check" /></span><p>Completed<strong>{games.filter(g => g.status === "Completed").length}</strong><small>6 this year</small></p></div>
-            <div><span className="stat-icon orange-bg"><Icon name="clock" /></span><p>Time played<strong>286h</strong><small>+12h this week</small></p></div>
+            <div><span className="stat-icon purple-bg"><Icon name="play" /></span><p>Currently playing<strong>{games.filter(g => g.status === "Playing").length}</strong><small>Games in progress</small></p></div>
+            <div><span className="stat-icon blue-bg"><Icon name="library" /></span><p>In your backlog<strong>{games.filter(g => g.status === "Backlog").length}</strong><small>Games to play</small></p></div>
+            <div><span className="stat-icon green-bg"><Icon name="check" /></span><p>Completed<strong>{games.filter(g => g.status === "Completed").length}</strong><small>Games finished</small></p></div>
+            <div><span className="stat-icon orange-bg"><Icon name="clock" /></span><p>Time played<strong>{totalHours}h</strong><small>Across your library</small></p></div>
           </section>
 
           <div className="section-title"><div><p className="eyebrow">YOUR LIBRARY</p><h2>Keep the momentum</h2></div><button onClick={() => setActiveList("All games")}>View all games →</button></div>
           <div className="tabs">{["All games", "Playing", "Backlog", "Completed"].map(x => <button className={activeList === x ? "active" : ""} onClick={() => setActiveList(x)} key={x}>{x}</button>)}</div>
           <section className="game-grid">
+<<<<<<< HEAD
             {visibleGames.map(game => <article className="game-card" key={game.id} draggable onDragStart={() => setDraggedGameId(game.id)} onDragEnd={() => setDraggedGameId(null)}>
               <div className="cover"><img src={game.image} alt="" /><span>{game.platform}</span><div className="card-menu">
                 <button><Icon name="more" /></button>
                 <div className="card-pop"><p>Move to</p>{["Playing", "Backlog", "Completed", "On hold"].map(s => <button onClick={() => moveGame(game.id, s)} key={s}>{s}</button>)}<button className="danger" onClick={() => removeGame(game.id)}>Remove game</button></div>
+=======
+            {visibleGames.map(game => <article className="game-card" key={game.id}>
+              <div className="cover">{game.image ? <img src={game.image} alt="" /> : <div className="cover-unavailable" role="img" aria-label={`${game.title}: cover art unavailable`}>Cover art unavailable</div>}<span>{game.platform}</span><div className="card-menu">
+                <button><Icon name="more" /></button><div className="card-pop"><p>Move to</p>{gameStatuses.map(status => <button onClick={() => moveGame(game.id, status)} key={status}>{status}</button>)}<button className="danger" onClick={() => { setGames(games.filter(g => g.id !== game.id)); notify("Game removed"); }}>Remove game</button></div>
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
               </div></div>
               <div className="card-info"><div><small>{game.genre}</small><h3>{game.title}</h3></div><span className="rating"><Icon name="star" size={13} />{game.score}</span></div>
               <div className="progress-row"><div><i style={{ width: `${game.progress}%`, background: game.color }} /></div><span>{game.progress}%</span></div>
@@ -383,15 +424,11 @@ export default function App() {
           <section className="lower-grid">
             <div className="recommend">
               <div className="section-title"><div><p className="eyebrow">MADE FOR YOU</p><h2>Your next obsession</h2></div><button>See all →</button></div>
-              <div className="recommend-card"><img src={images.tower} alt="City towers at night" /><div><span className="match">94% MATCH</span><h3>Citadel Zero</h3><p>A tactical city-builder shaped by impossible choices.</p><div><button className="primary small" onClick={() => addGame(initialGames[3])}><Icon name="plus" /> Add to backlog</button><button className="icon-button"><Icon name="play" /></button><button className="icon-button"><Icon name="link" /></button></div></div></div>
+              <div className="recommend-card"><div><span className="match">IGDB GAME CATALOG</span><h3>Find your next game</h3><p>Browse real games and add the ones you want to play.</p><div><button className="primary small" onClick={() => setCurrentView("Add games")}><Icon name="search" /> Browse IGDB</button></div></div></div>
             </div>
             <div className="activity">
               <div className="section-title"><div><p className="eyebrow">JOURNAL</p><h2>Recent activity</h2></div><button>Open journal →</button></div>
-              <div className="timeline">
-                <div><span className="dot purple-bg"><Icon name="play" size={14} /></span><p><b>You played Echoes of Orion</b><small>2 hours · Today at 8:42 PM</small></p></div>
-                <div><span className="dot green-bg"><Icon name="star" size={14} /></span><p><b>Rated Hollow Vale 4.5</b><small>“A world worth getting lost in.” · Yesterday</small></p></div>
-                <div><span className="dot blue-bg"><Icon name="users" size={14} /></span><p><b>Sam shared a list with you</b><small>Best co-op games · 2 days ago</small></p></div>
-              </div>
+              <div className="timeline"><p className="empty-library-message">Your game activity will appear here as you use your library.</p></div>
             </div>
           </section>
           </>}
@@ -400,6 +437,7 @@ export default function App() {
 
       {showAdd && <div className="modal-backdrop" onMouseDown={() => setShowAdd(false)}>
         <div className="modal" onMouseDown={e => e.stopPropagation()}><button className="modal-close" onClick={() => setShowAdd(false)}><Icon name="x" /></button><p className="eyebrow purple">SEARCH THE CATALOG</p><h2>Add a game</h2>
+<<<<<<< HEAD
           <div className="modal-search"><Icon name="search" /><input autoFocus placeholder="Search by title, genre, or platform..." /></div>
           <div className="modal-form">
             <label className="modal-field">
@@ -426,6 +464,9 @@ export default function App() {
           </div>
           <p className="modal-label">TRENDING SEARCHES</p>
           {[{ ...initialGames[2], id: 12 }, { ...initialGames[3], id: 13 }, { ...initialGames[1], id: 14, title: "Neon Drifter" }].map(g => <div className="search-result" key={g.id}><img src={g.image} alt="" /><div><strong>{g.title}</strong><span>{g.genre} · {g.platform}</span></div><button onClick={() => addGame(g)}><Icon name="plus" /></button></div>)}
+=======
+          <GameSearch label="Search games to add" placeholder="Search IGDB for a game..." onAdd={addGame} existingGames={games} />
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)
         </div>
       </div>}
       {toast && <div className="toast"><Icon name="check" />{toast}</div>}

@@ -10,9 +10,15 @@ websites submitting forms as your users). The React code gets one from
 /api/csrf/ and sends it back in the X-CSRFToken header.
 """
 import json
+import logging
+import urllib.error
+import urllib.parse
+import urllib.request
 
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.password_validation import validate_password
+from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import JsonResponse
@@ -20,6 +26,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 def user_data(user):
@@ -125,6 +132,7 @@ def logout_view(request):
     logout(request)
     return JsonResponse({"ok": True})
 
+<<<<<<< HEAD
 @require_POST
 def delete_account(request):
     """POST /api/delete-account/ with {password} - permanently delete the signed-in account."""
@@ -143,3 +151,140 @@ def delete_account(request):
     logout(request)
     user.delete()  # removes the row from the accounts table
     return JsonResponse({"ok": True})
+=======
+
+def igdb_access_token():
+    cache_key = f"igdb_access_token:{settings.IGDB_CLIENT_ID}"
+    token = cache.get(cache_key)
+    if token:
+        return token
+
+    token_request = urllib.request.Request(
+        "https://id.twitch.tv/oauth2/token",
+        data=urllib.parse.urlencode(
+            {
+                "client_id": settings.IGDB_CLIENT_ID,
+                "client_secret": settings.IGDB_CLIENT_SECRET,
+                "grant_type": "client_credentials",
+            }
+        ).encode(),
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        method="POST",
+    )
+    with urllib.request.urlopen(token_request, timeout=10) as response:
+        token_data = json.loads(response.read())
+
+    if not isinstance(token_data, dict):
+        raise ValueError("IGDB returned an invalid token response.")
+
+    token = token_data.get("access_token")
+    if not isinstance(token, str) or not token:
+        raise ValueError("IGDB returned an invalid access token.")
+
+    expires_in = token_data.get("expires_in", 3600)
+    timeout = max(60, int(expires_in) - 60)
+    cache.set(cache_key, token, timeout=timeout)
+    return token
+
+
+def igdb_game_data(game):
+    cover = game.get("cover")
+    image = cover.get("url", "") if isinstance(cover, dict) else ""
+    if not isinstance(image, str):
+        image = ""
+    if image.startswith("//"):
+        image = f"https:{image}"
+    image = image.replace("/t_thumb/", "/t_cover_big/")
+    genres = game.get("genres")
+    platforms = game.get("platforms")
+    genre = next(
+        (
+            item["name"]
+            for item in genres or []
+            if isinstance(item, dict) and isinstance(item.get("name"), str)
+        ),
+        "Genre unavailable",
+    )
+    platform = next(
+        (
+            item["name"]
+            for item in platforms or []
+            if isinstance(item, dict) and isinstance(item.get("name"), str)
+        ),
+        "Platform unavailable",
+    )
+    rating = game.get("rating")
+
+    result = {
+        "id": game["id"],
+        "title": game["name"],
+        "genre": genre,
+        "platform": platform,
+        "progress": 0,
+        "hours": 0,
+        "status": "Backlog",
+        "image": image,
+        "color": "#6f4be5",
+    }
+    if isinstance(rating, (int, float)):
+        result["score"] = round(rating / 20, 1)
+    return result
+
+
+@require_GET
+def search_games(request):
+    if not request.user.is_authenticated:
+        return error("Sign in to search games.", status=401)
+
+    query = " ".join(request.GET.get("q", "").split())
+    if not query:
+        return error("Enter a game title to search.")
+    if len(query) > 100:
+        return error("Search terms must be 100 characters or fewer.")
+    if not settings.IGDB_CLIENT_ID or not settings.IGDB_CLIENT_SECRET:
+        return error("IGDB is not configured.", status=503)
+
+    escaped_query = query.replace("\\", "\\\\").replace('"', '\\"')
+    igdb_query = (
+        f'search "{escaped_query}"; '
+        "fields id,name,genres.name,platforms.name,cover.url,rating; "
+        "limit 20;"
+    )
+
+    try:
+        token = igdb_access_token()
+        games_request = urllib.request.Request(
+            "https://api.igdb.com/v4/games",
+            data=igdb_query.encode(),
+            headers={
+                "Client-ID": settings.IGDB_CLIENT_ID,
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "text/plain",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(games_request, timeout=10) as response:
+            games_data = json.loads(response.read())
+        if not isinstance(games_data, list):
+            raise ValueError("IGDB returned an invalid games response.")
+        games = [
+            igdb_game_data(game)
+            for game in games_data
+            if isinstance(game, dict)
+            and isinstance(game.get("id"), int)
+            and isinstance(game.get("name"), str)
+        ]
+    except (
+        urllib.error.URLError,
+        TimeoutError,
+        ValueError,
+        json.JSONDecodeError,
+        UnicodeDecodeError,
+        KeyError,
+        TypeError,
+    ):
+        logger.exception("IGDB game search failed.")
+        return error("IGDB search is temporarily unavailable. Please try again.", status=502)
+
+    return JsonResponse({"games": games})
+>>>>>>> 4504baf (fuck it, try and maybe add api fuctionality hope this works)

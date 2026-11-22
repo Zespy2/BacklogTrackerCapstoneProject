@@ -6,6 +6,7 @@ the internet: set a new SECRET_KEY, set DEBUG = False, and fill in
 ALLOWED_HOSTS.
 """
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -15,6 +16,10 @@ SECRET_KEY = "django-insecure-dev-only-change-me-before-deploying"
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+# IGDB credentials are server-side only; never expose them to the frontend.
+IGDB_CLIENT_ID = os.environ.get("IGDB_CLIENT_ID", "")
+IGDB_CLIENT_SECRET = os.environ.get("IGDB_CLIENT_SECRET", "")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
