@@ -6,9 +6,12 @@ Automated checks for the accounts API. Run them with:
 Each test uses a fresh, temporary database, so your real accounts are never touched.
 """
 import json
+from io import BytesIO
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.core.cache import cache
+from django.test import Client, TestCase, override_settings
 
 User = get_user_model()
 
@@ -74,3 +77,74 @@ class AccountApiTests(TestCase):
             "/api/login/", json.dumps({"email": "a@b.com", "password": "x"}), content_type="application/json"
         )
         self.assertEqual(response.status_code, 403)
+
+
+class GameSearchApiTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.client.force_login(User.objects.create_user(username="searcher", password="password"))
+
+    def test_search_requires_sign_in(self):
+        self.client.logout()
+
+        response = self.client.get("/api/games/search/?q=zelda")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()["error"], "Sign in to search games.")
+
+    def test_search_requires_query(self):
+        response = self.client.get("/api/games/search/")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"], "Enter a game title to search.")
+
+    @override_settings(IGDB_CLIENT_ID="", IGDB_CLIENT_SECRET="")
+    def test_search_reports_missing_igdb_credentials(self):
+        response = self.client.get("/api/games/search/?q=zelda")
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()["error"], "IGDB is not configured.")
+
+    @override_settings(IGDB_CLIENT_ID="client-id", IGDB_CLIENT_SECRET="client-secret")
+    @patch("accounts.views.urllib.request.urlopen")
+    def test_search_returns_igdb_games_with_backlog_defaults(self, urlopen):
+        urlopen.side_effect = [
+            BytesIO(b'{"access_token":"test-token","expires_in":3600}'),
+            BytesIO(
+                json.dumps(
+                    [
+                        {
+                            "id": 42,
+                            "name": "Example Game",
+                            "genres": [{"name": "Adventure"}],
+                            "platforms": [{"name": "PC"}],
+                            "cover": {
+                                "url": "//images.igdb.com/igdb/image/upload/t_thumb/co123.jpg"
+                            },
+                            "rating": 86,
+                        }
+                    ]
+                ).encode()
+            ),
+        ]
+
+        response = self.client.get("/api/games/search/?q=example")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["games"],
+            [
+                {
+                    "id": 42,
+                    "title": "Example Game",
+                    "genre": "Adventure",
+                    "platform": "PC",
+                    "progress": 0,
+                    "hours": 0,
+                    "status": "Backlog",
+                    "image": "https://images.igdb.com/igdb/image/upload/t_cover_big/co123.jpg",
+                    "color": "#6f4be5",
+                    "score": 4.3,
+                }
+            ],
+        )

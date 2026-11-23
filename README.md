@@ -113,9 +113,9 @@ The Video Game Backlog Tracker has progressed from its initial Figma Make protot
 
 The frontend uses React, TypeScript, and Vite to provide the user interface. The backend uses Python and Django to handle account functionality, authentication, and database operations.
 
-The project currently includes automated tests for account registration, login, logout, password validation, duplicate email prevention, and CSRF protection.
+The project currently includes account registration and login, plus an IGDB-backed game search routed through Django. Search results can be added to the in-browser backlog.
 
-Some features, including persistent game library management, external game API integration, and recommendation functionality, remain under development. Sample game data is still used in parts of the interface.
+Persistent game-library storage and recommendation functionality remain under development. IGDB search requires server-side Twitch application credentials.
 
 ## CI/CD Pipeline
 
@@ -214,11 +214,16 @@ Run the Django migrations and start the backend:
 
 ```bash
 cd backend
+# Set these in the shell before starting Django (do not commit credentials).
+export IGDB_CLIENT_ID="your-twitch-client-id"
+export IGDB_CLIENT_SECRET="your-twitch-client-secret"
 python manage.py migrate
 python manage.py runserver
 ```
 
 The Django backend runs locally at `http://127.0.0.1:8000`.
+
+Create a Twitch application to obtain the IGDB API credentials. The frontend calls Django at `/api/games/search/`; Django uses these environment variables to request an access token and query IGDB. If either variable is missing, the search page displays a configuration message. Keep the credentials on the server and out of frontend code.
 
 ### Frontend Setup
 
