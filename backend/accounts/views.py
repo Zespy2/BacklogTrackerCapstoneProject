@@ -15,13 +15,18 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.conf import settings
 from django.core.cache import cache
+from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.http import JsonResponse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
@@ -285,3 +290,83 @@ def search_games(request):
         return error("IGDB search is temporarily unavailable. Please try again.", status=502)
 
     return JsonResponse({"games": games})
+
+    # Same message whether or not the email has an account, so nobody can use the
+# "Forgot password?" form to find out who is signed up.
+RESET_SENT_MESSAGE = "If an account uses that email, we've sent a link to reset your password."
+RESET_LINK_INVALID = "This reset link is invalid or has expired. Please request a new one."
+
+
+@require_POST
+def forgot_password(request):
+    """POST /api/forgot-password/ with {email} - email the user a password reset link."""
+    data = read_json(request)
+    email = str(data.get("email", "")).strip()
+
+    if not email:
+        return error("Please enter your email address.")
+
+    user = User.objects.filter(email__iexact=email, is_active=True).first()
+    if user is not None and user.has_usable_password():
+        # uid = the user's id, encoded so it is safe to put in a link.
+        # token = a one-time code made from the user's current password hash and
+        # last login, so it stops working once the password changes. It also
+        # expires after settings.PASSWORD_RESET_TIMEOUT seconds.
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
+        if settings.DEBUG:
+            # The printed email wraps long lines and turns "=" into "=3D", which
+            # breaks the link. Print a clean copy so it can be clicked while testing.
+            print(f"\nPassword reset link for {user.email}:\n{link}\n", flush=True)
+        try:
+            send_mail(
+                subject="Reset your Inventory password",
+                message=(
+                    f"Hi {user.username},\n\n"
+                    f"Someone asked to reset the password for your Inventory account. "
+                    f"To choose a new password, open this link:\n\n{link}\n\n"
+                    f"The link works once and expires in "
+                    f"{settings.PASSWORD_RESET_TIMEOUT // 60} minutes. "
+                    f"If you didn't ask for this, you can ignore this email."
+                ),
+                from_email=None,  # uses settings.DEFAULT_FROM_EMAIL
+                recipient_list=[user.email],
+            )
+        except Exception:
+            # Log it for us, but don't show a different reply to the user.
+            logger.exception("Could not send password reset email")
+
+    return JsonResponse({"message": RESET_SENT_MESSAGE})
+
+
+@require_POST
+def reset_password(request):
+    """POST /api/reset-password/ with {uid, token, new_password} - set a new password."""
+    data = read_json(request)
+    uid = str(data.get("uid", ""))
+    token = str(data.get("token", ""))
+    new_password = str(data.get("new_password", ""))
+
+    try:
+        user = User.objects.get(pk=urlsafe_base64_decode(uid).decode())
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return error(RESET_LINK_INVALID)
+
+    if not default_token_generator.check_token(user, token):
+        return error(RESET_LINK_INVALID)
+
+    if not new_password:
+        return error("Please enter a new password.")
+
+    # Same password rules as sign-up (settings.AUTH_PASSWORD_VALIDATORS)
+    try:
+        validate_password(new_password, user=user)
+    except ValidationError as exc:
+        return error(" ".join(exc.messages))
+
+    # set_password hashes the new password. Changing it also makes this link
+    # (and any other reset links already sent) stop working.
+    user.set_password(new_password)
+    user.save()
+    return JsonResponse({"message": "Your password has been reset. You can sign in now."})

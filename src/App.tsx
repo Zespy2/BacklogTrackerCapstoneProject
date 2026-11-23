@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { deleteAccount, getCurrentUser, signIn, signOut, signUp, type User } from "./api";
+import { confirmPasswordReset, deleteAccount, getCurrentUser, requestPasswordReset, signIn, signOut, signUp, type User } from "./api";
 
 import GameSearch from "./GameSearch";
 import { gameStatuses, type Game, type GameStatus } from "./gameTypes";
@@ -72,33 +72,59 @@ function PublicSite({ page, onNavigate }: { page: "main" | "about"; onNavigate: 
   </div>;
 }
 
-// Sign-in page, leads to create account and password reset. 
+// Sign-in page, leads to create account and password reset.
+// "recover" = type your email to get a reset link; "reset" = choose a new password (opened from that link)
+type Mode = "signin" | "signup" | "recover" | "reset";
+
 function Auth({ onEnter, onBack }: { onEnter: (user: User) => void; onBack: () => void }) {
-  const [mode, setMode] = useState<"signin" | "signup" | "recover">("signin");
+  // Open in "reset" mode if the user arrived from the link in a reset email
+  const [mode, setMode] = useState<Mode>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return window.location.pathname === "/reset-password" && params.has("uid") && params.has("token")
+      ? "reset"
+      : "signin";
+  });
   // What the user has typed into each box
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   // Messages shown under the form, and whether we're waiting on Django
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const switchMode = (next: "signin" | "signup" | "recover") => { setMode(next); setError(""); setInfo(""); };
+    const switchMode = (next: Mode) => { setMode(next); setError(""); setInfo(""); };
 
   // Runs when the main button is clicked (or Enter is pressed in a box)
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); setInfo("");
-    if (mode === "recover") {
-      // Password reset emails aren't connected to Django yet.
-      setInfo("Password reset isn't set up yet. Ask a teammate to reset it from the Django admin site.");
-      return;
+    
+    // Check the reset form before contacting Django
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get("uid");
+    const token = params.get("token");
+    if (mode === "reset") {
+      if (!newPassword || !confirmPassword) { setError("Please fill in both password fields."); return; }
+      if (newPassword !== confirmPassword) { setError("Passwords do not match."); return; }
+      if (!uid || !token) { setError("Invalid password reset link."); return; }
     }
+
     setBusy(true);
     try {
-      const user = mode === "signup" ? await signUp(email, password, username) : await signIn(email, password);
-      onEnter(user);
+      if (mode === "recover") {
+        setInfo(await requestPasswordReset(email));
+      } else if (mode === "reset") {
+        setInfo(await confirmPasswordReset(uid!, token!, newPassword));
+        window.history.replaceState({}, "", "/"); // remove the used link from the address bar
+        setNewPassword(""); setConfirmPassword("");
+        setMode("signin"); // not switchMode, so the success message stays visible
+      } else {
+        const user = mode === "signup" ? await signUp(email, password, username) : await signIn(email, password);
+        onEnter(user);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
@@ -119,17 +145,21 @@ function Auth({ onEnter, onBack }: { onEnter: (user: User) => void; onBack: () =
         <form className="auth-card" onSubmit={submit}>
           <button type="button" className="auth-back" onClick={onBack}>← Back to home</button>
           <div className="mobile-brand brand"><span>ℑ</span>Inventory</div>
-          <p className="eyebrow purple">{mode === "recover" ? "ACCOUNT RECOVERY" : "WELCOME, PLAYER"}</p>
-          <h2>{mode === "signup" ? "Create your account" : mode === "recover" ? "Reset your password" : "Sign in to Inventory"}</h2>
-          <p className="muted">{mode === "signup" ? "Start building the backlog you'll actually finish." : mode === "recover" ? "We'll send a secure reset link to your inbox." : "Your library is right where you left it."}</p>
-          <label>Email address<input type="email" required autoComplete="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} /></label>
-          {mode !== "recover" && <label>Password<input type="password" required autoComplete={mode === "signup" ? "new-password" : "current-password"} placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} /></label>}
+                    <p className="eyebrow purple">{mode === "recover" ? "ACCOUNT RECOVERY" : mode === "reset" ? "PASSWORD RESET" : "WELCOME, PLAYER"}</p>
+          <h2>{mode === "signup" ? "Create your account" : mode === "recover" ? "Forgot your password?" : mode === "reset" ? "Reset your password" : "Sign in to Inventory"}</h2>
+          <p className="muted">{mode === "signup" ? "Start building the backlog you'll actually finish." : mode === "recover" ? "We'll send a secure reset link to your inbox." : mode === "reset" ? "Enter your new password and confirm it below." : "Your library is right where you left it."}</p>
+          {mode !== "reset" && <label>Email address<input type="email" required autoComplete="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} /></label>}
+          {mode === "reset" && <>
+            <label>New password<input type="password" required autoComplete="new-password" placeholder="Enter new password" value={newPassword} onChange={e => setNewPassword(e.target.value)} /></label>
+            <label>Confirm password<input type="password" required autoComplete="new-password" placeholder="Confirm new password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} /></label>
+          </>}
+          {(mode === "signin" || mode === "signup") && <label>Password<input type="password" required autoComplete={mode === "signup" ? "new-password" : "current-password"} placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} /></label>}
           {mode === "signup" && <label>Username<input required autoComplete="username" placeholder="Choose a player name" value={username} onChange={e => setUsername(e.target.value)} /></label>}
           {mode === "signin" && <button type="button" className="text-button forgot" onClick={() => switchMode("recover")}>Forgot password?</button>}
           {error && <p className="auth-message auth-error" role="alert">{error}</p>}
           {info && <p className="auth-message" role="status">{info}</p>}
-          <button type="submit" className="primary wide" disabled={busy}>{busy ? "Please wait…" : mode === "signup" ? "Create account" : mode === "recover" ? "Send reset link" : "Sign in"}</button>
-          {mode === "recover" ? <button type="button" className="text-button center" onClick={() => switchMode("signin")}>Back to sign in</button> :
+          <button type="submit" className="primary wide" disabled={busy}>{busy ? "Please wait…" : mode === "signup" ? "Create account" : mode === "recover" ? "Send reset link" : mode === "reset" ? "Reset password" : "Sign in"}</button>
+          {mode === "recover" || mode === "reset" ? <button type="button" className="text-button center" onClick={() => { if (mode === "reset") window.history.replaceState({}, "", "/"); switchMode("signin"); }}>Back to sign in</button> :
             <p className="switch">{mode === "signup" ? "Already have an account?" : "New to Inventory?"} <button type="button" onClick={() => switchMode(mode === "signup" ? "signin" : "signup")}>{mode === "signup" ? "Sign in" : "Create account"}</button></p>}
         </form>
       </div>
@@ -268,9 +298,14 @@ export default function App() {
   const displayName = user?.username ?? "";
   const initials = displayName.slice(0, 2).toUpperCase();
 
+    // True when the page was opened from the link in a password reset email
+  const urlParams = new URLSearchParams(window.location.search);
+  const isResetLink = window.location.pathname === "/reset-password" && urlParams.has("uid") && urlParams.has("token");
+
   if (checkingSession) return null;
   if (!user) {
-    if (publicView === "signin") return <Auth onEnter={u => { setUser(u); setCurrentView("Recommendations"); }} onBack={() => setPublicView("main")} />;
+    // Clearing the address bar on "Back to home" stops a reset link from keeping you on the sign-in page
+    if (publicView === "signin" || isResetLink) return <Auth onEnter={u => { setUser(u); setCurrentView("Recommendations"); }} onBack={() => { window.history.replaceState({}, "", "/"); setPublicView("main"); }} />;
     return <PublicSite page={publicView} onNavigate={setPublicView} />;
   }
   return (

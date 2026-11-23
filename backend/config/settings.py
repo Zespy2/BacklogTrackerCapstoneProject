@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Our app: user accounts and the sign-in / sign-up API
     "accounts",
+    "recommendations",
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Password reset
+# Where the React site lives, used to build the link in reset emails.
+FRONTEND_URL = "http://localhost:8443"
+# Reset links stop working after this many seconds (1 hour).
+PASSWORD_RESET_TIMEOUT = 60 * 60
+DEFAULT_FROM_EMAIL = "Inventory <no-reply@inventory.local>"
+# No email service yet: in development, print emails (including the reset
+# link) in the terminal running `python manage.py runserver`.
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    
 # The React site runs on the Vite dev server (port 8443) and forwards /api
 # requests here. Django's CSRF protection needs to trust that address.
 CSRF_TRUSTED_ORIGINS = [
