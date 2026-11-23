@@ -38,7 +38,18 @@ header { height: 76px; padding: 0 4.5%; background: rgba(255,255,255,.92); borde
 .purple-bg { background: #eee9ff; color: #704ede; }.blue-bg { background: #e7f4f8; color: #388aab; }.green-bg { background: #e8f6ed; color: #3b9a61; }.orange-bg { background: #fff1e5; color: #db8139; }
 .section-title { display: flex; align-items: end; justify-content: space-between; }.section-title h2 { font: 800 19px "Manrope"; margin: 0; letter-spacing: -.5px; }.section-title button { border: 0; background: none; color: #6949d4; font-size: 10px; font-weight: 600; }
 .tabs { display: flex; gap: 22px; border-bottom: 1px solid #dddce3; margin-top: 18px; }.tabs button { padding: 0 0 10px; border: 0; background: none; color: #918e99; font-size: 10px; }.tabs button.active { color: #6041ce; font-weight: 700; border-bottom: 2px solid #6746d7; }
-.game-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 15px; margin-top: 18px; }.game-card { background: #fff; border: 1px solid #e7e6eb; border-radius: 12px; overflow: hidden; transition: transform .2s, box-shadow .2s; }.game-card:hover { transform: translateY(-3px); box-shadow: 0 14px 35px #352d5215; }.cover { height: 125px; position: relative; }.cover > img { width: 100%; height: 100%; object-fit: cover; }.cover > span { position: absolute; left: 9px; top: 9px; background: #11101b9c; color: white; border-radius: 5px; padding: 4px 7px; font-size: 7px; font-weight: 700; }.card-menu { position: absolute; right: 8px; top: 7px; }.card-menu > button { color: white; border: 0; background: #11101b87; border-radius: 6px; padding: 4px; }.card-pop { display: none; position: absolute; top: 30px; right: 0; width: 120px; background: #fff; border-radius: 8px; padding: 7px; box-shadow: 0 12px 30px #17131f42; z-index: 5; }.card-menu:hover .card-pop { display: block; }.card-pop p { margin: 2px 6px 5px; font-size: 7px; color: #aaa6b2; }.card-pop button { width: 100%; text-align: left; border: 0; background: none; padding: 5px 6px; font-size: 9px; border-radius: 4px; }.card-pop button:hover { background: #f3f0fc; }
+.game-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 15px; margin-top: 18px; }.game-card { background: #fff; border: 1px solid #e7e6eb; border-radius: 12px; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+.game-card {
+  cursor: grab;
+}
+.game-card:active {
+  cursor: grabbing;
+}
+.game-card.dragging {
+  opacity: 0.55;
+  transform: scale(0.98);
+}
+.game-card:hover { transform: translateY(-3px); box-shadow: 0 14px 35px #352d5215; }.cover { height: 125px; position: relative; }.cover > img { width: 100%; height: 100%; object-fit: cover; }.cover > span { position: absolute; left: 9px; top: 9px; background: #11101b9c; color: white; border-radius: 5px; padding: 4px 7px; font-size: 7px; font-weight: 700; }.card-menu { position: absolute; right: 8px; top: 7px; }.card-menu > button { color: white; border: 0; background: #11101b87; border-radius: 6px; padding: 4px; }.card-pop { display: none; position: absolute; top: 30px; right: 0; width: 120px; background: #fff; border-radius: 8px; padding: 7px; box-shadow: 0 12px 30px #17131f42; z-index: 5; }.card-menu:hover .card-pop { display: block; }.card-pop p { margin: 2px 6px 5px; font-size: 7px; color: #aaa6b2; }.card-pop button { width: 100%; text-align: left; border: 0; background: none; padding: 5px 6px; font-size: 9px; border-radius: 4px; }.card-pop button:hover { background: #f3f0fc; }
 .card-info { padding: 12px 13px 6px; display: flex; justify-content: space-between; }.card-info small { color: #98949f; font-size: 8px; }.card-info h3 { font: 700 13px "Manrope"; margin: 2px 0; }.rating { display: flex; gap: 3px; font-size: 9px; color: #7b7781; align-items: center; }.rating svg { fill: #ebb84c; color: #ebb84c; }.progress-row { display: flex; align-items: center; gap: 7px; padding: 4px 13px 8px; }.progress-row div { flex: 1; height: 3px; background: #ecebf0; }.progress-row i { height: 100%; display: block; }.progress-row span { font-size: 8px; color: #aaa6b0; }.card-meta { border-top: 1px solid #efedf1; margin: 0 13px; padding: 9px 0 11px; display: flex; justify-content: space-between; }.card-meta span { color: #9a96a1; font-size: 8px; display: flex; align-items: center; gap: 4px; }.card-meta button { border: 0; background: none; color: #6746d7; font-size: 8px; font-weight: 600; }
 .lower-grid { margin-top: 45px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 35px; }.recommend-card { margin-top: 16px; height: 210px; border-radius: 13px; overflow: hidden; position: relative; color: white; }.recommend-card > img { width: 100%; height: 100%; object-fit: cover; }.recommend-card:after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,#15131feb, #1713238f); }.recommend-card > div { position: absolute; z-index: 2; left: 24px; top: 23px; max-width: 300px; }.match { color: #a997ef; font-size: 8px; font-weight: 800; letter-spacing: 1px; }.recommend-card h3 { font: 800 22px "Manrope"; margin: 7px 0 3px; }.recommend-card p { color: #d0ccd7; font-size: 10px; margin: 0 0 22px; }.recommend-card > div > div { display: flex; gap: 7px; }.small { height: 34px; }
 .timeline { margin-top: 15px; background: #fff; border: 1px solid #e7e6ec; border-radius: 12px; padding: 4px 17px; }.timeline > div { display: flex; gap: 11px; align-items: center; border-bottom: 1px solid #eeedf1; padding: 15px 0; }.timeline > div:last-child { border: 0; }.dot { width: 31px; height: 31px; flex: none; }.timeline p { display: flex; flex-direction: column; margin: 0; font-size: 10px; }.timeline small { color: #a5a1ab; margin-top: 3px; font-size: 8px; }
@@ -285,6 +296,41 @@ nav button b { color: #fff; background: #ff254f; box-shadow: 0 0 12px #ff254f55;
 .public-footer { min-height: 90px; padding: 22px 5.5%; border-top: 1px solid #17222b; display: flex; align-items: center; gap: 25px; }.public-footer p { color: #65747f; font-size: 9px; }.public-footer > span { margin-left: auto; color: #46535d; font-size: 7px; letter-spacing: 1px; }
 .auth-back { display: block; margin-bottom: 42px; padding: 0; border: 0; background: transparent; color: #74838e; font-size: 9px; }
 .auth-back:hover { color: #32e4ff; }
+
+.hero { background: linear-gradient(115deg, #07141b, #10111a 60%, #24101a); }
+.hero-empty { position: absolute; inset: 42px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.hero-empty h2 { margin: 15px 0 5px; font: 800 30px "Manrope"; }
+.hero-empty p { margin: 0 0 19px; color: #a4b2bc; font-size: 11px; }
+.empty-library-message { margin: 0; padding: 18px; color: #80909d; font-size: 10px; }
+.game-search { width: 100%; max-width: 900px; }
+.game-search .big-search { max-width: none; }
+.game-search .primary:disabled { opacity: .6; cursor: wait; }
+.igdb-results { margin-top: 16px; }
+.igdb-message { margin: 0; padding: 14px 16px; border: 1px solid #263541; border-radius: 9px; color: #92a4b1; background: #0b1118; font-size: 10px; line-height: 1.5; }
+.igdb-error { color: #ff9aab; border-color: #6b2738; background: #200d14; }
+.igdb-result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.igdb-result { min-width: 0; display: flex; gap: 13px; padding: 10px; color: #eafaff; background: #0c1016; border: 1px solid #242e39; border-radius: 11px; }
+.igdb-result > img, .cover-unavailable { width: 92px; min-width: 92px; height: 126px; object-fit: cover; border-radius: 7px; }
+.cover-unavailable { display: grid; place-items: center; padding: 8px; color: #82919d; background: #111922; border: 1px dashed #354451; font-size: 9px; text-align: center; }
+.igdb-result-info { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.igdb-result-info > span { color: #80909d; font-size: 8px; line-height: 1.4; }
+.igdb-result-info h3 { margin: 5px 0; color: #effbff; font: 700 13px "Manrope"; overflow-wrap: anywhere; }
+.igdb-result-info p { margin: 0 0 8px; color: #ff6681; font-size: 8px; }
+.igdb-result-info .secondary { margin-top: 5px; }
+.igdb-result-info button:disabled { opacity: .55; cursor: default; }
+.modal .game-search { max-width: none; }
+.modal .igdb-results { max-height: min(55vh, 500px); overflow-y: auto; }
+.modal .igdb-result-grid { grid-template-columns: 1fr; }
+.modal .igdb-result > img, .modal .cover-unavailable { width: 68px; min-width: 68px; height: 92px; }
+.cover .cover-unavailable { width: 100%; min-width: 0; height: 100%; border-radius: 0; }
+.catalog-grid article > .cover-unavailable { width: 135px; min-width: 135px; height: auto; flex: none; }
+@media(max-width: 950px) { .igdb-result-grid { grid-template-columns: 1fr; } }
+@media(max-width: 650px) {
+  .hero-empty { inset: 28px 20px; }
+  .hero-empty h2 { font-size: 25px; }
+  .igdb-result > img, .cover-unavailable { width: 76px; min-width: 76px; height: 106px; }
+  .catalog-grid article > .cover-unavailable { width: 105px; min-width: 105px; height: auto; }
+}
 @media(max-width:900px) { .landing-hero { grid-template-columns:1fr; padding-top:80px; }.landing-copy { margin:auto; text-align:center; }.landing-copy > p:not(.eyebrow) { margin-inline:auto; }.landing-actions,.landing-proof { justify-content:center; }.landing-visual { height:500px; max-width:650px; width:100%; margin:auto; }.about-story { grid-template-columns:1fr; }.story-image { min-height:320px; }.story-image:after { background:linear-gradient(transparent 60%,#090d12); }.about-values { grid-template-columns:1fr; }.about-values > div { border-bottom:1px solid #18232b; } }
 @media(max-width:600px) { .public-header { height:70px; grid-template-columns:1fr auto; }.public-nav { display:none; }.public-signin { font-size:9px; }.landing-hero { padding:65px 20px 30px; }.landing-copy h1,.about-intro h1 { font-size:43px; letter-spacing:-2.5px; }.landing-visual { height:430px; transform:scale(.82); transform-origin:top center; margin-bottom:-70px; }.card-front { left:38%; }.card-back { left:3%; }.floating-stat { right:-8%; }.landing-strip { gap:13px; }.landing-strip span { font-size:6px; letter-spacing:1.3px; }.about-intro { padding:65px 22px 45px; }.about-story { margin:0 18px; }.story-copy { padding:38px 25px; }.about-values { margin:55px 22px; }.public-footer { flex-wrap:wrap; }.public-footer p { display:none; } }
 
@@ -306,3 +352,22 @@ nav button b { color: #fff; background: #ff254f; box-shadow: 0 0 12px #ff254f55;
 .auth-message { clear: both; margin: 4px 0 10px; padding: 10px 12px; border-radius: 8px; font-size: 10px; line-height: 1.5; color: #9fe9f7; background: #06232b; border: 1px solid #134352; }
 .auth-error { color: #ff8da2; background: #2a0a12; border-color: #6b1a2c; }
 .auth-card .primary:disabled { opacity: .6; cursor: wait; }
+
+.delete-button:disabled { opacity: .45; cursor: not-allowed; } /* greys out delete button until it can be used */
+.modal-form { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+.modal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.modal-field { display: flex; flex-direction: column; gap: 7px; }
+.modal-field span { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: #8d95a1; font-weight: 700; }
+.modal-field input,
+.modal-field select {
+  height: 42px;
+  border: 1px solid #dfe3ea;
+  border-radius: 8px;
+  background: #f6f7fb;
+  color: #19232d;
+  padding: 0 12px;
+  outline: none;
+}
+.modal-field input:focus,
+.modal-field select:focus { border-color: #00dcff; box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.12); }
+.modal .primary.wide { width: 100%; margin-top: 4px; }

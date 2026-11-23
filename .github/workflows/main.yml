@@ -1,4 +1,4 @@
-# Comment, add more later, just establishing I can add a workflow/CI-CD pipeline
+# Comment to update this here because apparently that's what it takes for github to recognize my pushes
 name: CSC325 CI/CD pipeline for Capstone Project.
 
 on:
@@ -39,6 +39,9 @@ jobs:
     name: Test
     needs: dependencies
     runs-on: ubuntu-latest
+    env:
+      # Empyty key means code does not call Gemini, even if a test forgets to mock it. This is a security measure to prevent accidental calls to Gemini during testing.
+      GEMINI_API_KEY: ""
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -65,9 +68,36 @@ jobs:
       - name: Build frontend
         run: pnpm build
 
+  eval:
+    name: Eval
+    needs: test
+    # Required stage: only run the evaluation suite on pull requests to main
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      # Empyty key means code does not call Gemini, even if a test forgets to mock it. This is a security measure to prevent accidental calls to Gemini during testing.
+      GEMINI_API_KEY: ""
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AI evaluation suite
+        working-directory: ./backend
+        run: python evaluations/run_evals.py
+
   deploy:
     name: Deploy
     needs: test
+    # Only deploy after changes are mergedinto main (not on PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Deploy application

@@ -12,4 +12,8 @@ urlpatterns = [
     # Sign-in / sign-up API used by the React site
     path("api/", include("accounts.urls")),
     path('', home, name='home'),
+    path(
+        "api/recommendations/",
+        include("recommendations.urls"),
+    ),
 ]

@@ -6,6 +6,7 @@ the internet: set a new SECRET_KEY, set DEBUG = False, and fill in
 ALLOWED_HOSTS.
 """
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,6 +17,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
+# IGDB credentials are server-side only; never expose them to the frontend.
+IGDB_CLIENT_ID = os.environ.get("IGDB_CLIENT_ID", "")
+IGDB_CLIENT_SECRET = os.environ.get("IGDB_CLIENT_SECRET", "")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -25,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Our app: user accounts and the sign-in / sign-up API
     "accounts",
+    "recommendations",
 ]
 
 MIDDLEWARE = [
@@ -78,6 +84,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Password reset
+# Where the React site lives, used to build the link in reset emails.
+FRONTEND_URL = "http://localhost:8443"
+# Reset links stop working after this many seconds (1 hour).
+PASSWORD_RESET_TIMEOUT = 60 * 60
+DEFAULT_FROM_EMAIL = "Inventory <no-reply@inventory.local>"
+# No email service yet: in development, print emails (including the reset
+# link) in the terminal running `python manage.py runserver`.
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    
 # The React site runs on the Vite dev server (port 8443) and forwards /api
 # requests here. Django's CSRF protection needs to trust that address.
 CSRF_TRUSTED_ORIGINS = [
