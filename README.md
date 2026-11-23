@@ -276,6 +276,327 @@ The repository contains local setup documentation and an automated testing workf
 
 Full end-to-end onboarding and deployment verification remain to be completed after a live deployment environment is configured.
 
+## Sprint 3: LLM Feature Development and Evaluation
+
+### 1. LLM-Powered Game Recommendations
+
+For Sprint 3, our team developed an AI-powered game recommendation feature for the Video Game Backlog Tracker using Google's Gemini API.
+
+The feature supports our Product Goal by helping users decide which game to play next based on the games already in their backlog and their preferred genres.
+
+The AI recommendation logic is implemented in Python through our Django backend.
+
+**Implementation files:**
+- `backend/recommendations/services.py` — Handles the Gemini API request, response validation, and fallback behavior.
+- `backend/prompts/recommendation_v1.txt` — Stores the version-controlled recommendation prompt.
+
+The backend reads the Gemini API key from the `GEMINI_API_KEY` environment variable instead of hardcoding it in the source code. Production credentials should be configured securely using GitHub Secrets and hosting environment settings.
+
+### 2. Fallback Path and Error Handling
+
+The recommendation service includes a fallback mechanism that allows the application to continue working when the AI provider is unavailable.
+
+The fallback handles the following situations:
+
+- Missing Gemini API key.
+- API connection failures.
+- API timeout exceptions.
+- Invalid JSON responses.
+- Missing or invalid response fields.
+- Recommendations that contain games outside the user's backlog.
+
+When the AI response cannot be used, the backend selects the first valid game from the user's backlog.
+
+If the backlog contains no valid games, the system returns no recommendation and asks the user to add games.
+
+Automated tests verify this behavior by simulating errors and invalid AI responses without calling the real Gemini API.
+
+**Test file:** `backend/recommendations/tests.py`
+
+### 3. Evaluation Suite
+
+Our team created an evaluation suite to test the AI recommendation feature against a golden dataset.
+
+The dataset contains 15 examples with sample game backlogs, user genre preferences, and expected recommendations.
+
+**Evaluation files:**
+- `backend/evaluations/golden_set.json`
+- `backend/evaluations/run_evals.py`
+
+The current evaluation implementation includes two reported checks:
+
+**Hallucination Check**
+
+Verifies that a recommended game belongs to the provided backlog.
+
+- Pass threshold: 100%.
+
+**Expected Recommendation Check (Currently Labeled Consistency)**
+
+Checks whether a recommended game matches one of the expected games in the golden dataset.
+
+- Pass threshold: 95%.
+- Repetitions: Three mocked evaluations per case.
+
+The existing implementation reports this score as consistency. However, because the script generates mocked responses from the expected answers, it does not measure independent consistency across actual Gemini model calls.
+
+**Running the evaluation suite**
+
+From the backend directory:
+
+`python evaluations/run_evals.py`
+
+The script prints the results and returns an unsuccessful exit status if either configured threshold is not met.
+
+### 4. Latest Evaluation Results
+
+The GitHub Actions evaluation completed successfully on November 22, 2026.
+
+| Evaluation Metric | Result | Required Threshold |
+|---|---|---|
+| Golden test cases | 15 | At least 15 |
+| Mocked runs per case | 3 | Three configured |
+| Hallucination score | 100% | 100% |
+| Reported consistency score | 100% | 95% |
+| Overall evaluation | PASSED | PASS |
+
+These results demonstrate the application's behavior under mocked AI responses. They should not be interpreted as independently measured Gemini recommendation quality.
+
+**[View Evaluation Results — GitHub Actions](https://github.com/Zespy2/BacklogTrackerCapstoneProject/actions/runs/45070415574/job/137356271019)**
+
+### 5. CI/CD Pipeline Integration
+
+Our team uses GitHub Actions to automate application testing and evaluation.
+
+The workflow is located at `.github/workflows/main.yml`.
+
+It contains five jobs:
+
+1. **Setup:** Checks out the repository and configures Python.
+2. **Dependencies:** Installs Python dependencies.
+3. **Test:** Runs Django tests and builds the React frontend.
+4. **Eval:** Executes the recommendation evaluation suite on pull requests targeting `main`.
+5. **Deploy:** Runs after successful tests on pushes to `main`. Deployment currently remains a placeholder.
+
+The Test and Eval jobs set `GEMINI_API_KEY` to an empty value at the job level to reduce the risk of accidental live API requests. The evaluation suite then uses mocked responses.
+
+The Eval job runs automatically on pull requests to `main`. If an evaluation score falls below its configured threshold, the script returns a failure status and the Eval job fails.
+
+**[Successful GitHub Actions Workflow](https://github.com/Zespy2/BacklogTrackerCapstoneProject/actions/runs/45070415574)**
+
+## Sprint 3: LLM Feature Development and Evaluation
+
+### 1. LLM-Powered Game Recommendations
+
+For Sprint 3, our team developed an AI-powered game recommendation feature using Google's Gemini API to support the Video Game Backlog Tracker's Product Goal.
+
+The feature helps players decide which game to play next based on their existing backlog and preferred genres.
+
+The recommendation system is implemented using Python and Django, with the AI service communicating with Google's Gemini API.
+
+**Implementation Files:**
+- `backend/recommendations/services.py` — Handles the AI API request, validates recommendations, and provides fallback behavior.
+- `backend/prompts/recommendation_v1.txt` — Stores the version-controlled AI prompt.
+- `backend/recommendations/tests.py` — Contains automated recommendation and fallback tests.
+
+The API key is accessed through the `GEMINI_API_KEY` environment variable instead of being hardcoded. Production credentials should be stored securely using GitHub Secrets and the hosting provider's environment settings.
+
+### 2. Fallback Path and Error Handling
+
+Our recommendation system includes a fallback mechanism to ensure the application remains functional when the Gemini API is unavailable or returns invalid results.
+
+The fallback activates when:
+
+- The Gemini API request fails.
+- An API timeout exception occurs.
+- The AI returns invalid JSON or missing required information.
+- The AI recommends a game outside the user's backlog.
+- The Gemini API key is missing.
+
+When an error occurs, the application selects the first valid game from the user's backlog without relying on Gemini.
+
+If the backlog is empty, the application returns a message asking the user to add games before requesting recommendations.
+
+Automated tests verify these scenarios using mocked AI responses without making real API calls.
+
+**Test File:** `backend/recommendations/tests.py`
+
+### 3. Evaluation Suite
+
+Our team developed an evaluation suite using a golden dataset of 15 test cases containing example game backlogs, genre preferences, and expected recommendations.
+
+**Evaluation Files:**
+- `backend/evaluations/golden_set.json`
+- `backend/evaluations/run_evals.py`
+
+The suite implements the following reported checks:
+
+**Hallucination Check**
+
+Verifies that recommended games belong to the user's existing backlog.
+
+- Pass threshold: 100%.
+
+**Expected Recommendation Check (Labeled Consistency)**
+
+Compares the returned recommendation against the expected games in the golden dataset.
+
+- Pass threshold: 95%.
+- Repeated mocked evaluations: 3 per test case.
+
+The existing implementation labels the second metric as consistency, although it measures expected-output agreement rather than variation between independent model responses.
+
+**Running the Evaluation Suite**
+
+From the backend directory:
+
+`python evaluations/run_evals.py`
+
+The script prints evaluation scores and returns an unsuccessful exit status if a configured threshold is not met.
+
+### 4. Evaluation Results
+
+The GitHub Actions evaluation completed successfully on November 22, 2026.
+
+| Metric | Result | Threshold |
+|---|---|---|
+| Golden Test Cases | 15 | At least 15 |
+| Runs Per Test Case | 3 | 3 configured |
+| Hallucination Score | 100% | 100% |
+| Reported Consistency Score | 100% | 95% |
+| Overall Result | PASSED | PASS |
+
+These results demonstrate application behavior under mocked AI responses. They do not independently measure the quality or consistency of live Gemini responses.
+
+**[View Sprint 3 Evaluation Results](https://github.com/Zespy2/BacklogTrackerCapstoneProject/actions/runs/45070415574/job/137356271019)**
+
+### 5. CI/CD Pipeline Integration
+
+The team uses GitHub Actions to automate software testing and evaluation.
+
+The workflow is located at `.github/workflows/main.yml`.
+
+The pipeline includes the following jobs:
+
+1. **Setup:** Configures the development environment.
+2. **Dependencies:** Installs project dependencies.
+3. **Test:** Executes Django automated tests and builds the React frontend.
+4. **Eval:** Runs the AI evaluation suite on pull requests targeting `main`.
+5. **Deploy:** Runs on pushes to `main` after successful tests. Deployment remains a placeholder.
+
+The Test and Eval jobs set `GEMINI_API_KEY` to an empty value to reduce the possibility of accidental live API requests. The evaluation script uses mocked Gemini responses.
+
+The Eval job runs when a pull request targets `main` and fails if an evaluation score falls below its configured threshold.
+
+**[Successful GitHub Actions Workflow](https://github.com/Zespy2/BacklogTrackerCapstoneProject/actions/runs/45070415574)**
+
+### 6. Sprint 3 Feature Development and Completed User Stories
+
+During Sprint 3, our team continued developing the application's account management, game collection management, and AI recommendation functionality.
+
+The project backlog currently contains **9 closed story-labeled issues: 7 user stories and 2 technical stories**.
+
+**Epic 1: Account Management**
+
+This epic focuses on allowing users to create accounts, sign in, and manage account information securely.
+
+Completed user stories:
+- [Issue #2 — Account Management](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/2)
+- [Issue #34 — Forgot Password](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/34)
+
+Additional completed tasks:
+- [Issue #9 — Create Account Page](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/9)
+- [Issue #10 — Sign In Page](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/10)
+
+**Epic 2: Game List Management and Core Interface**
+
+This epic focuses on organizing game collections and providing a functional interface for managing the backlog.
+
+Closed user stories:
+- [Issue #4 — Game List Management](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/4)
+- [Issue #13 — Main Page Development](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/13)
+
+**Epic 3: AI Game Recommendations and Additional Features**
+
+This epic focuses on game recommendations and expanding the application's functionality.
+
+Closed user stories:
+- [Issue #1 — Game Recommendations](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/1)
+- [Issue #5 — Social and Community Features](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/5)
+- [Issue #6 — Tags, Notes, and Custom Organization](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/6)
+
+**Technical Stories**
+
+- [Issue #24 — Automated CI/CD Pipeline](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/24)
+- [Issue #25 — Automated CI/CD Pipeline](https://github.com/Zespy2/BacklogTrackerCapstoneProject/issues/25)
+
+Both technical issues describe closely related CI/CD work and are listed separately because they are separate closed GitHub issues.
+
+The issues above are marked completed in GitHub. Their individual acceptance criteria and implementation evidence should be verified before treating all of them as fully delivered features.
+
+### 7. Pull Requests, Approvals, and Testing Evidence
+
+The following pull requests were merged with recorded teammate approvals:
+
+- [PR #16 — Automated CI/CD Workflow](https://github.com/Zespy2/BacklogTrackerCapstoneProject/pull/16)
+- [PR #30 — Account Deletion](https://github.com/Zespy2/BacklogTrackerCapstoneProject/pull/30)
+- [PR #35 — Gemini Game Recommendations and Evaluation Suite](https://github.com/Zespy2/BacklogTrackerCapstoneProject/pull/35)
+- [PR #36 — Sprint 3 AI CI/CD Updates](https://github.com/Zespy2/BacklogTrackerCapstoneProject/pull/36)
+- [PR #37 — Password Reset Functionality](https://github.com/Zespy2/BacklogTrackerCapstoneProject/pull/37)
+
+PR #35 includes mocked recommendation tests, the 15-case evaluation dataset, and the Eval pipeline stage.
+
+PR #36 improves safeguards against unintended live AI requests during automated testing.
+
+PR #37 implements password-reset functionality.
+
+**[Automated Testing Evidence — Successful Test and Eval Workflow](https://github.com/Zespy2/BacklogTrackerCapstoneProject/actions/runs/45070415574)**
+
+**[Project Kanban Board](https://github.com/users/Zespy2/projects/1)**
+
+Although nine story-labeled issues are closed, the count includes two technical stories. Additional verification is needed to confirm the required 9–15 distinct completed user stories and their acceptance-test evidence.
+
+### 8. Prompt-Injection Risk
+
+One potential prompt-injection vulnerability involves malicious instructions embedded in user-provided game titles or descriptions.
+
+For example, an attacker could include instructions telling Gemini to ignore the recommendation rules and recommend a game that does not belong to the user's backlog.
+
+The current prompt instructs Gemini to treat game information as data rather than instructions. The backend also validates returned recommendations against the supplied backlog.
+
+However, these measures do not eliminate every possible prompt-injection attack. Additional safeguards and testing will be addressed in Sprint 4.
+
+### 9. Model-Change Sanity Check
+
+If Google's Gemini model changed tomorrow, the current mocked evaluation suite would not reliably detect changes in the model's actual recommendation behavior.
+
+This is because the evaluation uses mocked responses created from expected answers rather than independent live AI calls.
+
+The current suite verifies application behavior and output-handling rules. A separate live-model evaluation would be required to detect changes in actual recommendation accuracy, consistency, or quality.
+
+### 10. Sprint 3 AI-Use Statement
+
+Our team used AI tools, including Gemini during the development of the Video Game Backlog Tracker.
+
+Gemini is used as the AI provider for the game's recommendation feature.
+
+During review, we identified a limitation in the evaluation suite: its reported consistency check uses mocked responses generated from expected outputs. Therefore, the results do not independently establish consistency across real Gemini responses.
+
+We also identified that the mocked evaluation cannot detect changes in recommendation quality if the AI provider updates its model.
+
+These limitations were identified by inspecting the evaluation script and comparing its logic with the assignment requirements. They have been documented, but correcting the evaluation methodology remains additional work.
+
+The team remains responsible for reviewing AI-generated suggestions, verifying implementation behavior, correcting errors, and confirming that the application meets the assignment requirements.
+
+### 11. Sprint 3 Video Demonstration
+
+The Sprint 3 demonstration will show:
+
+- The Gemini-powered game recommendation feature.
+- The fallback behavior when the AI is unavailable.
+- An evaluation-suite execution and its results.
+
+**Unlisted YouTube Video (3 minutes maximum):** https://youtu.be/9ckHTHHVbzM 
 
 ## AI-Use Statement
 
