@@ -576,11 +576,9 @@ The current suite verifies application behavior and output-handling rules. A sep
 
 ### 10. Sprint 3 AI-Use Statement
 
-Our team used AI tools, including ChatGPT and Gemini, during the development of the Video Game Backlog Tracker.
+Our team used AI tools, including Gemini during the development of the Video Game Backlog Tracker.
 
 Gemini is used as the AI provider for the game's recommendation feature.
-
-ChatGPT assisted with reviewing the Sprint 3 requirements, explaining the AI service and evaluation code, identifying evaluation limitations, and preparing README documentation.
 
 During review, we identified a limitation in the evaluation suite: its reported consistency check uses mocked responses generated from expected outputs. Therefore, the results do not independently establish consistency across real Gemini responses.
 
@@ -598,7 +596,7 @@ The Sprint 3 demonstration will show:
 - The fallback behavior when the AI is unavailable.
 - An evaluation-suite execution and its results.
 
-**Unlisted YouTube Video (3 minutes maximum):** [INSERT VIDEO LINK]
+**Unlisted YouTube Video (3 minutes maximum):** https://youtu.be/9ckHTHHVbzM 
 
 ## AI-Use Statement
 
