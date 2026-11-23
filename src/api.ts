@@ -14,7 +14,7 @@ async function ensureCsrfCookie() {
   if (!getCookie("csrftoken")) await fetch("/api/csrf/", { credentials: "same-origin" });
 }
 
-async function post(path: string, body: object = {}): Promise<{ user?: User | null }> {
+async function post(path: string, body: object = {}): Promise<{ user?: User | null; message?: string }> {
   await ensureCsrfCookie();
   let response: Response;
   try {
@@ -63,4 +63,16 @@ export async function signOut(): Promise<void> {
 
 export async function deleteAccount(password: string): Promise<void> {
   await post("/api/delete-account/", { password });
+}
+
+/** Ask Django to email a password reset link. Returns the message to show. */
+export async function requestPasswordReset(email: string): Promise<string> {
+  const data = await post("/api/forgot-password/", { email });
+  return data.message ?? "If an account uses that email, we've sent a link to reset your password.";
+}
+
+/** Set a new password using the uid and token from the reset link. Returns the message to show. */
+export async function confirmPasswordReset(uid: string, token: string, newPassword: string): Promise<string> {
+  const data = await post("/api/reset-password/", { uid, token, new_password: newPassword });
+  return data.message ?? "Your password has been reset. You can sign in now.";
 }
